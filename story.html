@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Morrigan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A1119">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="app/app.css">
+<script src="app/support.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:#C3CDD8}a:hover{color:#F1F4F7}
+.arrive{animation:arrive .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes arrive{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:none}}
+.thread{fill:none;stroke:#9ED8E8;stroke-width:1.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 3px rgba(126,200,226,.8))}
+.th1{animation:draw .5s cubic-bezier(.5,0,.2,1) .1s forwards}
+.th2{animation:draw .6s cubic-bezier(.5,0,.2,1) .55s forwards}
+.tdot{opacity:0;animation:fadein .4s ease 1.1s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fadein{to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes turn{to{transform:rotate(360deg)}}
+.back-node .bdot{transition:transform .3s,box-shadow .3s}
+.back-node:hover .bdot,.back-node:focus-visible .bdot{transform:scale(1.4);box-shadow:0 0 0 5px rgba(158,216,232,.14),0 0 16px rgba(126,200,226,.9)}
+.flipper{transition:transform .85s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:8px;overflow:hidden}
+.glint rect{fill:none;stroke:#EAF4F6;stroke-width:2;stroke-linecap:round;stroke-dasharray:.14 .86;stroke-dashoffset:1;filter:drop-shadow(0 0 4px rgba(158,216,232,1));animation:glint 1.1s cubic-bezier(.4,0,.2,1) .3s forwards;opacity:0}
+@keyframes glint{0%{stroke-dashoffset:1;opacity:0}10%{opacity:1}85%{opacity:1}100%{stroke-dashoffset:-.02;opacity:0}}
+.reveal-text{animation:arrive .6s cubic-bezier(.2,.7,.2,1) .3s both}
+
+/* letras del anillo */
+.ltr text{fill:#4A6078;transition:fill .6s ease,opacity .8s ease}
+.ltr text.num{fill:#2C3D52}
+.open .ltr{opacity:0;transition:opacity 1s ease .4s}
+.ring-on .ltr text{fill:#7C8DA1}
+.ring-on .ltr text.num{fill:#41546B}
+.at-index{fill:#E4EAF0 !important}
+/* pista: una línea recorre el anillo y roza E, L, F */
+.hintsweep{fill:none;stroke:#EAF4F6;stroke-width:1.3;stroke-linecap:round;stroke-dasharray:.03 .97;stroke-dashoffset:1;opacity:0;filter:drop-shadow(0 0 3px rgba(94,214,182,.9))}
+.locked .hintsweep{animation:hsweep 13s ease-in-out 3.5s infinite}
+@keyframes hsweep{0%{stroke-dashoffset:1;opacity:0}3%{opacity:.8}26%{opacity:.8}30%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.locked .key-e{animation:keyhint 13s ease-in-out 4.1s infinite}
+.locked .key-l{animation:keyhint 13s ease-in-out 4.7s infinite}
+.locked .key-f{animation:keyhint 13s ease-in-out 5.3s infinite}
+@keyframes keyhint{0%,100%{fill:#4A6078}2%{fill:#5ED6B6}6%{fill:#4A6078}}
+
+/* la perilla respira mientras la tocás */
+.kb{opacity:0;transition:opacity .5s ease}
+.k-on .kb{opacity:1}
+.k-on .kw1{animation:turn 9s linear infinite}
+.k-on .kw2{animation:turn 12s linear infinite reverse}
+.kwave{fill:none;stroke:#DDE6EE;opacity:0}
+.k-on .kwave{animation:kwave 2.6s cubic-bezier(.2,.6,.3,1) infinite}
+@keyframes kwave{0%{r:31px;opacity:.5}60%{r:58px;opacity:0}100%{r:58px;opacity:0}}
+.kring{transition:stroke .5s ease,fill .5s ease,filter .5s ease}
+.k-small .kwave{animation-duration:4.4s}
+.k-small .kw1{animation-duration:16s}
+.k-small .kw2{animation-duration:22s}
+.knob{transition:transform 1.1s cubic-bezier(.5,0,.2,1) .9s}
+.reset .kring{animation:shake .35s ease}
+@keyframes shake{25%{transform:translateX(-1.5px)}75%{transform:translateX(1.5px)}}
+
+/* apertura: la onda despierta todo */
+.openwave{fill:none;stroke:#DDE6EE;opacity:0}
+.opening .openwave{animation:openwave 1.8s cubic-bezier(.2,.6,.3,1) forwards}
+.opening .openwave.w2{animation-delay:.25s}
+.opening .openwave.w3{animation-delay:.5s}
+@keyframes openwave{0%{r:40px;opacity:.75;stroke-width:1.6}100%{r:620px;opacity:0;stroke-width:.3}}
+
+@media (prefers-reduced-motion: reduce){
+  .arrive,.th1,.th2,.tdot,.reveal-text,.glint rect,.locked .hintsweep,.locked .key-e,.locked .key-l,.locked .key-f,.k-on .kw1,.k-on .kw2,.k-on .kwave,.opening .openwave{animation:none}
+  .thread{stroke-dashoffset:0}.tdot{opacity:1}
+  .flipper,.dial,.ring,.lev,.knob{transition:none !important}
+  .floaty{animation:none !important}
+}
+</style>
+</helmet>
+<div class="{{rootCls}}" onWheel="{{wheel}}" onPointerDown="{{dDown}}" onPointerMove="{{dMove}}" onPointerUp="{{dUp}}" onPointerCancel="{{dUp}}" style="touch-action: none; width: 390px; height: 844px; position: relative; overflow: hidden; background: radial-gradient(110% 55% at 50% 40%, #16263C 0%, #0A1119 66%); color: #C3CDD8; font-family: Jost, sans-serif; font-weight: 300">
+
+  <div class="ring {{ringCls}}" style="position: absolute; left: 195px; top: 905px; width: 0; height: 0; transform: rotate({{ringRot}}); transition: {{ringTrans}}; pointer-events: none">
+    <svg viewBox="-760 -760 1520 1520" width="1520" height="1520" aria-hidden="true" style="position: absolute; left: -760px; top: -760px; overflow: visible">
+      <g fill="none" stroke-width="1">
+        <circle cx="0" cy="0" r="652" stroke="#1D2E44"></circle>
+        <circle cx="0" cy="0" r="700" stroke="#131F30" stroke-dasharray="1 6"></circle>
+        <circle cx="0" cy="0" r="440" stroke="#17263A" stroke-dasharray="1 5"></circle>
+        <path stroke="#2A3C54" d="M0.0 -652.0L0.0 -668.0M28.4 -651.4L28.6 -655.4M56.8 -649.5L57.2 -653.5M85.1 -646.4L85.6 -650.4M113.2 -642.1L113.9 -646.0M141.1 -636.5L142.0 -640.5M168.8 -629.8L171.1 -638.5M196.1 -621.8L197.3 -625.6M223.0 -612.7L224.4 -616.4M249.5 -602.4L251.0 -606.1M275.5 -590.9L277.2 -594.5M301.1 -578.3L302.9 -581.9M326.0 -564.6L334.0 -578.5M350.3 -549.9L352.5 -553.3M374.0 -534.1L376.3 -537.4M396.9 -517.3L399.3 -520.4M419.1 -499.5L421.7 -502.5M440.5 -480.7L443.2 -483.7M461.0 -461.0L467.4 -467.4M480.7 -440.5L483.7 -443.2M499.5 -419.1L502.5 -421.7M517.3 -396.9L520.4 -399.3M534.1 -374.0L537.4 -376.3M549.9 -350.3L553.3 -352.5M564.6 -326.0L578.5 -334.0M578.3 -301.1L581.9 -302.9M590.9 -275.5L594.5 -277.2M602.4 -249.5L606.1 -251.0M612.7 -223.0L616.4 -224.4M621.8 -196.1L625.6 -197.3M629.8 -168.8L638.5 -171.1M636.5 -141.1L640.5 -142.0M642.1 -113.2L646.0 -113.9M646.4 -85.1L650.4 -85.6M649.5 -56.8L653.5 -57.2M651.4 -28.4L655.4 -28.6M652.0 0.0L668.0 0.0M651.4 28.4L655.4 28.6M649.5 56.8L653.5 57.2M646.4 85.1L650.4 85.6M642.1 113.2L646.0 113.9M636.5 141.1L640.5 142.0M629.8 168.8L638.5 171.1M621.8 196.1L625.6 197.3M612.7 223.0L616.4 224.4M602.4 249.5L606.1 251.0M590.9 275.5L594.5 277.2M578.3 301.1L581.9 302.9M564.6 326.0L578.5 334.0M549.9 350.3L553.3 352.5M534.1 374.0L537.4 376.3M517.3 396.9L520.4 399.3M499.5 419.1L502.5 421.7M480.7 440.5L483.7 443.2M461.0 461.0L467.4 467.4M440.5 480.7L443.2 483.7M419.1 499.5L421.7 502.5M396.9 517.3L399.3 520.4M374.0 534.1L376.3 537.4M350.3 549.9L352.5 553.3M326.0 564.6L334.0 578.5M301.1 578.3L302.9 581.9M275.5 590.9L277.2 594.5M249.5 602.4L251.0 606.1M223.0 612.7L224.4 616.4M196.1 621.8L197.3 625.6M168.8 629.8L171.1 638.5M141.1 636.5L142.0 640.5M113.2 642.1L113.9 646.0M85.1 646.4L85.6 650.4M56.8 649.5L57.2 653.5M28.4 651.4L28.6 655.4M0.0 652.0L0.0 668.0M-28.4 651.4L-28.6 655.4M-56.8 649.5L-57.2 653.5M-85.1 646.4L-85.6 650.4M-113.2 642.1L-113.9 646.0M-141.1 636.5L-142.0 640.5M-168.8 629.8L-171.1 638.5M-196.1 621.8L-197.3 625.6M-223.0 612.7L-224.4 616.4M-249.5 602.4L-251.0 606.1M-275.5 590.9L-277.2 594.5M-301.1 578.3L-302.9 581.9M-326.0 564.6L-334.0 578.5M-350.3 549.9L-352.5 553.3M-374.0 534.1L-376.3 537.4M-396.9 517.3L-399.3 520.4M-419.1 499.5L-421.7 502.5M-440.5 480.7L-443.2 483.7M-461.0 461.0L-467.4 467.4M-480.7 440.5L-483.7 443.2M-499.5 419.1L-502.5 421.7M-517.3 396.9L-520.4 399.3M-534.1 374.0L-537.4 376.3M-549.9 350.3L-553.3 352.5M-564.6 326.0L-578.5 334.0M-578.3 301.1L-581.9 302.9M-590.9 275.5L-594.5 277.2M-602.4 249.5L-606.1 251.0M-612.7 223.0L-616.4 224.4M-621.8 196.1L-625.6 197.3M-629.8 168.8L-638.5 171.1M-636.5 141.1L-640.5 142.0M-642.1 113.2L-646.0 113.9M-646.4 85.1L-650.4 85.6M-649.5 56.8L-653.5 57.2M-651.4 28.4L-655.4 28.6M-652.0 0.0L-668.0 0.0M-651.4 -28.4L-655.4 -28.6M-649.5 -56.8L-653.5 -57.2M-646.4 -85.1L-650.4 -85.6M-642.1 -113.2L-646.0 -113.9M-636.5 -141.1L-640.5 -142.0M-629.8 -168.8L-638.5 -171.1M-621.8 -196.1L-625.6 -197.3M-612.7 -223.0L-616.4 -224.4M-602.4 -249.5L-606.1 -251.0M-590.9 -275.5L-594.5 -277.2M-578.3 -301.1L-581.9 -302.9M-564.6 -326.0L-578.5 -334.0M-549.9 -350.3L-553.3 -352.5M-534.1 -374.0L-537.4 -376.3M-517.3 -396.9L-520.4 -399.3M-499.5 -419.1L-502.5 -421.7M-480.7 -440.5L-483.7 -443.2M-461.0 -461.0L-467.4 -467.4M-440.5 -480.7L-443.2 -483.7M-419.1 -499.5L-421.7 -502.5M-396.9 -517.3L-399.3 -520.4M-374.0 -534.1L-376.3 -537.4M-350.3 -549.9L-352.5 -553.3M-326.0 -564.6L-334.0 -578.5M-301.1 -578.3L-302.9 -581.9M-275.5 -590.9L-277.2 -594.5M-249.5 -602.4L-251.0 -606.1M-223.0 -612.7L-224.4 -616.4M-196.1 -621.8L-197.3 -625.6M-168.8 -629.8L-171.1 -638.5M-141.1 -636.5L-142.0 -640.5M-113.2 -642.1L-113.9 -646.0M-85.1 -646.4L-85.6 -650.4M-56.8 -649.5L-57.2 -653.5M-28.4 -651.4L-28.6 -655.4"></path>
+      </g>
+      <circle class="hintsweep" cx="0" cy="0" r="664" pathLength="1" transform="rotate(-90)"></circle>
+      <g class="ltr" font-family="Cormorant Garamond, serif" text-anchor="middle">
+        <text class="{{lc.A}}" transform="rotate(0) translate(0 -676)" y="6" font-size="17" font-weight="600">A</text>
+        <text class="{{lc.B}}" transform="rotate(30) translate(0 -676)" y="6" font-size="17" font-weight="600">B</text>
+        <text class="{{lc.C}}" transform="rotate(60) translate(0 -676)" y="6" font-size="17" font-weight="600">C</text>
+        <text class="{{lc.D}}" transform="rotate(90) translate(0 -676)" y="6" font-size="17" font-weight="600">D</text>
+        <text class="key-e {{lc.E}}" transform="rotate(120) translate(0 -676)" y="6" font-size="17" font-weight="600">E</text>
+        <text class="key-f {{lc.F}}" transform="rotate(150) translate(0 -676)" y="6" font-size="17" font-weight="600">F</text>
+        <text class="{{lc.G}}" transform="rotate(180) translate(0 -676)" y="6" font-size="17" font-weight="600">G</text>
+        <text class="{{lc.H}}" transform="rotate(210) translate(0 -676)" y="6" font-size="17" font-weight="600">H</text>
+        <text class="{{lc.I}}" transform="rotate(240) translate(0 -676)" y="6" font-size="17" font-weight="600">I</text>
+        <text class="{{lc.K}}" transform="rotate(270) translate(0 -676)" y="6" font-size="17" font-weight="600">K</text>
+        <text class="key-l {{lc.L}}" transform="rotate(300) translate(0 -676)" y="6" font-size="17" font-weight="600">L</text>
+        <text class="{{lc.M}}" transform="rotate(330) translate(0 -676)" y="6" font-size="17" font-weight="600">M</text>
+        <g class="nums" font-size="7.5" font-weight="500"><text class="num" transform="rotate(2.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(5) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(7.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(10) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(12.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(15) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(17.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(20) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(22.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(25) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(27.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(32.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(35) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(37.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(40) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(42.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(45) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(47.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(50) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(52.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(55) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(57.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(62.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(65) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(67.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(70) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(72.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(75) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(77.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(80) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(82.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(85) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(87.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(92.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(95) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(97.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(100) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(102.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(105) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(107.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(110) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(112.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(115) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(117.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(122.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(125) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(127.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(130) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(132.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(135) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(137.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(140) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(142.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(145) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(147.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(152.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(155) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(157.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(160) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(162.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(165) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(167.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(170) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(172.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(175) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(177.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(182.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(185) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(187.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(190) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(192.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(195) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(197.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(200) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(202.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(205) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(207.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(212.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(215) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(217.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(220) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(222.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(225) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(227.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(230) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(232.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(235) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(237.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(242.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(245) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(247.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(250) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(252.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(255) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(257.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(260) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(262.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(265) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(267.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(272.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(275) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(277.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(280) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(282.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(285) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(287.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(290) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(292.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(295) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(297.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(302.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(305) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(307.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(310) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(312.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(315) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(317.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(320) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(322.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(325) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(327.5) translate(0 -665)" y="3">11</text><text class="num" transform="rotate(332.5) translate(0 -665)" y="3">1</text><text class="num" transform="rotate(335) translate(0 -665)" y="3">2</text><text class="num" transform="rotate(337.5) translate(0 -665)" y="3">3</text><text class="num" transform="rotate(340) translate(0 -665)" y="3">4</text><text class="num" transform="rotate(342.5) translate(0 -665)" y="3">5</text><text class="num" transform="rotate(345) translate(0 -665)" y="3">6</text><text class="num" transform="rotate(347.5) translate(0 -665)" y="3">7</text><text class="num" transform="rotate(350) translate(0 -665)" y="3">8</text><text class="num" transform="rotate(352.5) translate(0 -665)" y="3">9</text><text class="num" transform="rotate(355) translate(0 -665)" y="3">10</text><text class="num" transform="rotate(357.5) translate(0 -665)" y="3">11</text></g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="dial" style="position: absolute; left: 195px; top: 905px; width: 0; height: 0; transform: rotate({{dialRot}}); transition: {{dialTrans}}">
+    <svg viewBox="-700 -700 1400 1400" width="1400" height="1400" aria-hidden="true" style="position: absolute; left: -700px; top: -700px; overflow: visible">
+      <rect x="-700" y="-700" width="1400" height="1400" fill="transparent"></rect>
+    </svg>
+
+    <sc-for list="{{cards}}" as="k" hint-placeholder-count="5">
+      <div style="position: absolute; left: -48px; top: -644px; width: 96px; height: 168px; transform-origin: 48px 644px; transform: rotate({{k.angle}}); transition: transform 1.25s cubic-bezier(.3,.8,.25,1) {{k.fanDelay}}; z-index: {{k.z}}">
+        <div class="lev" style="position: absolute; inset: 0; transform: translateY({{k.lift}}) scale({{k.scale}}); opacity: {{k.op}}; filter: {{k.filter}}; transition: transform .75s cubic-bezier(.3,1.25,.4,1) {{k.delay}}, opacity .9s ease {{k.delay}}, filter .9s ease {{k.delay}}">
+          <span style="position: absolute; left: 6px; right: 6px; bottom: -22px; height: 18px; border-radius: 50%; background: radial-gradient(closest-side, rgba(126,200,226,.55), rgba(126,200,226,0)); opacity: {{k.glowOp}}; transition: opacity .6s ease"></span>
+          <div class="floaty" style="position: absolute; inset: 0; animation: {{k.float}}">
+            <button onClick="{{k.tap}}" aria-label="{{k.aria}}" style="position: absolute; inset: 0; perspective: 900px">
+              <span class="flipper" style="position: absolute; inset: 0; display: block; transform: rotateY({{k.rot}})">
+                <span class="face" style="display: block; transform: rotateY(180deg); border: 1px solid {{k.edge}}; transition: border-color .9s ease {{k.delay}}; background: linear-gradient(180deg, #172548 0%, #0C1530 100%); box-shadow: {{k.shadow}}">
+                  <svg viewBox="0 0 100 175" style="width: 100%; height: 100%; display: block" aria-hidden="true">
+                    <g fill="none" stroke="#B0D7DE" stroke-width=".8">
+                      <rect x="5" y="5" width="90" height="165" rx="3" stroke-opacity=".45"></rect>
+                      <rect x="8" y="8" width="84" height="159" rx="2" stroke-opacity=".18"></rect>
+                      <polygon points="63.8,54.2 83.3,73.7 83.3,101.3 63.8,120.8 36.2,120.8 16.7,101.3 16.7,73.7 36.2,54.2" stroke-opacity=".5"></polygon>
+                      <circle cx="50" cy="87.5" r="31" stroke-opacity=".9"></circle>
+                      <circle cx="50" cy="87.5" r="18" stroke-opacity=".55" stroke-dasharray="1 2.4"></circle>
+                      <polygon points="71.9,65.6 71.9,109.4 28.1,109.4 28.1,65.6" stroke-opacity=".45"></polygon>
+                      <polygon points="79.9,79.5 58.0,117.4 20.1,95.5 42.0,57.6" stroke-opacity=".45"></polygon>
+                      <polygon points="79.9,95.5 42.0,117.4 20.1,79.5 58.0,57.6" stroke-opacity=".45"></polygon>
+                      <path d="M50 51.5V77M50 98V123.5M14 87.5H39.5M60.5 87.5H86" stroke-opacity=".35"></path>
+                    </g>
+                    <polygon points="50.00,80.50 50.99,85.10 54.95,82.55 52.40,86.51 57.00,87.50 52.40,88.49 54.95,92.45 50.99,89.90 50.00,94.50 49.01,89.90 45.05,92.45 47.60,88.49 43.00,87.50 47.60,86.51 45.05,82.55 49.01,85.10" style="fill: {{k.starFill}}; stroke: {{k.starStroke}}; stroke-width: .7; filter: {{k.starGlow}}; transition: fill .8s ease {{k.delay}}, filter .8s ease {{k.delay}}"></polygon>
+                  </svg>
+                  <span style="position: absolute; inset: 0; background: #070D1C; opacity: {{k.veil}}; transition: opacity 1s ease {{k.delay}}; pointer-events: none"></span>
+                </span>
+                <span class="face" style="display: block; border: 1px solid rgba(241,244,247,0.85); background: #0C1530; box-shadow: {{k.shadow}}">
+                  <sc-if value="{{k.up}}" hint-placeholder-val="{{ false }}">
+                    <img src="{{k.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+                  </sc-if>
+                </span>
+              </span>
+              <sc-if value="{{k.glint}}" hint-placeholder-val="{{ false }}">
+                <svg class="glint" viewBox="0 0 96 168" style="position: absolute; inset: 0; width: 96px; height: 168px; overflow: visible; pointer-events: none" aria-hidden="true">
+                  <rect x="0.5" y="0.5" width="95" height="167" rx="8" pathLength="1"></rect>
+                </svg>
+              </sc-if>
+            </button>
+          </div>
+          <span style="position: absolute; left: 0; right: 0; bottom: -38px; text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: {{k.numColor}}; opacity: {{k.numOp}}; transition: opacity .8s ease {{k.delay}}">{{k.num}}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; overflow: visible">
+    <path class="thread th1" pathLength="1" d="M195 0 V14"></path>
+    <path class="thread th2" pathLength="1" d="M195 92 V{{threadEnd}}"></path>
+    <path class="tdot" d="M190.5 {{caretY}} L199.5 {{caretY}} L195 {{caretTip}} Z" fill="#9ED8E8" style="filter: drop-shadow(0 0 4px rgba(126,200,226,.9))"></path>
+    <circle class="openwave" cx="195" cy="600" r="40"></circle>
+    <circle class="openwave w2" cx="195" cy="600" r="40"></circle>
+    <circle class="openwave w3" cx="195" cy="600" r="40"></circle>
+  </svg>
+
+  <a href="index.html" class="back-node" aria-label="Back to the circle" style="position: absolute; left: 173px; top: 0; width: 44px; height: 40px; display: flex; align-items: center; justify-content: center">
+    <span class="bdot" style="width: 8px; height: 8px; border-radius: 50%; background: #9ED8E8; box-shadow: 0 0 10px rgba(126,200,226,.8); margin-top: 8px"></span>
+  </a>
+
+  <header class="arrive" style="position: absolute; left: 64px; right: 64px; top: 34px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center">
+    <span style="font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; line-height: 1; color: #F1F4F7">Story</span>
+    <span style="font-size: 12px; color: #8E9FB2">Her life in five Tarokka cards</span>
+  </header>
+
+  <sc-if value="{{isOpen}}" hint-placeholder-val="{{ false }}">
+    <p class="reveal-text" style="position: absolute; left: 0; right: 0; top: 484px; margin: 0; text-align: center; font-size: 15px; color: #F1F4F7; font-weight: 400; animation-delay: 1.6s">{{c.position}}</p>
+  </sc-if>
+
+  <sc-if value="{{revealed}}" hint-placeholder-val="{{ false }}">
+    <section class="reveal-text" aria-live="polite" style="position: absolute; left: 28px; right: 28px; top: 512px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; line-height: 1; color: #F1F4F7">{{c.name}}</h2>
+      <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #8E9FB2">{{c.meaning}}</p>
+      <div style="width: 40px; height: 1px; background: #33465C; margin: 8px 0 5px"></div>
+      <p style="margin: 0; font-size: 12px; color: #8E9FB2">{{c.prompt}}</p>
+      <p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; line-height: 1.26; color: #F1F4F7">{{c.answer}}</p>
+    </section>
+  </sc-if>
+
+  <button class="knob {{knobCls}}" onPointerDown="{{kDown}}" onPointerMove="{{kMove}}" onPointerUp="{{kUp}}" onPointerCancel="{{kUp}}" onKeyDown="{{kKey}}" aria-label="{{knobLabel}}" style="position: absolute; left: 105px; top: 510px; width: 180px; height: 180px; border-radius: 50%; touch-action: none; cursor: grab; transform: {{knobPlace}}">
+    <svg viewBox="-40 -40 80 80" width="180" height="180" aria-hidden="true" style="display: block; overflow: visible">
+      <g class="kb">
+        <circle class="kwave" cx="0" cy="0" r="31" vector-effect="non-scaling-stroke" stroke-width="1"></circle>
+        <circle class="kwave" cx="0" cy="0" r="31" vector-effect="non-scaling-stroke" stroke-width="1" style="animation-delay: .4s"></circle>
+        <path class="kw1" d="M35.00 0.00 L35.35 1.85 L35.57 3.74 L35.61 5.64 L35.44 7.53 L35.06 9.40 L34.46 11.20 L33.66 12.92 L32.67 14.55 L31.54 16.07 L30.31 17.50 L29.02 18.84 L27.70 20.12 L26.38 21.36 L25.09 22.59 L23.83 23.83 L22.59 25.09 L21.36 26.38 L20.12 27.70 L18.84 29.02 L17.50 30.31 L16.07 31.54 L14.55 32.67 L12.92 33.66 L11.20 34.46 L9.40 35.06 L7.53 35.44 L5.64 35.61 L3.74 35.57 L1.85 35.35 L0.00 35.00 L-1.81 34.55 L-3.58 34.05 L-5.31 33.53 L-7.02 33.03 L-8.72 32.55 L-10.43 32.11 L-12.17 31.69 L-13.92 31.28 L-15.71 30.83 L-17.50 30.31 L-19.28 29.69 L-21.02 28.93 L-22.69 28.02 L-24.25 26.93 L-25.67 25.67 L-26.93 24.25 L-28.02 22.69 L-28.93 21.02 L-29.69 19.28 L-30.31 17.50 L-30.83 15.71 L-31.28 13.92 L-31.69 12.17 L-32.11 10.43 L-32.55 8.72 L-33.03 7.02 L-33.53 5.31 L-34.05 3.58 L-34.55 1.81 L-35.00 0.00 L-35.35 -1.85 L-35.57 -3.74 L-35.61 -5.64 L-35.44 -7.53 L-35.06 -9.40 L-34.46 -11.20 L-33.66 -12.92 L-32.67 -14.55 L-31.54 -16.07 L-30.31 -17.50 L-29.02 -18.84 L-27.70 -20.12 L-26.38 -21.36 L-25.09 -22.59 L-23.83 -23.83 L-22.59 -25.09 L-21.36 -26.38 L-20.12 -27.70 L-18.84 -29.02 L-17.50 -30.31 L-16.07 -31.54 L-14.55 -32.67 L-12.92 -33.66 L-11.20 -34.46 L-9.40 -35.06 L-7.53 -35.44 L-5.64 -35.61 L-3.74 -35.57 L-1.85 -35.35 L-0.00 -35.00 L1.81 -34.55 L3.58 -34.05 L5.31 -33.53 L7.02 -33.03 L8.72 -32.55 L10.43 -32.11 L12.17 -31.69 L13.92 -31.28 L15.71 -30.83 L17.50 -30.31 L19.28 -29.69 L21.02 -28.93 L22.69 -28.02 L24.25 -26.93 L25.67 -25.67 L26.93 -24.25 L28.02 -22.69 L28.93 -21.02 L29.69 -19.28 L30.31 -17.50 L30.83 -15.71 L31.28 -13.92 L31.69 -12.17 L32.11 -10.43 L32.55 -8.72 L33.03 -7.02 L33.53 -5.31 L34.05 -3.58 L34.55 -1.81 Z" fill="none" stroke="#DDE6EE" stroke-opacity=".55" vector-effect="non-scaling-stroke" stroke-width="1"></path>
+        <path class="kw2" d="M38.46 0.00 L38.44 2.01 L38.18 4.01 L37.71 5.97 L37.04 7.87 L36.23 9.71 L35.33 11.48 L34.39 13.20 L33.45 14.89 L32.53 16.57 L31.64 18.27 L30.77 19.98 L29.89 21.72 L28.97 23.46 L27.98 25.19 L26.86 26.86 L25.61 28.44 L24.20 29.88 L22.63 31.15 L20.92 32.22 L19.11 33.09 L17.21 33.78 L15.28 34.31 L13.33 34.73 L11.40 35.07 L9.48 35.39 L7.59 35.72 L5.71 36.07 L3.83 36.46 L1.93 36.85 L0.00 37.23 L-1.97 37.54 L-3.97 37.74 L-5.98 37.77 L-7.99 37.59 L-9.96 37.19 L-11.88 36.56 L-13.71 35.71 L-15.44 34.68 L-17.08 33.51 L-18.62 32.26 L-20.11 30.96 L-21.55 29.66 L-22.99 28.38 L-24.43 27.13 L-25.90 25.90 L-27.40 24.67 L-28.90 23.40 L-30.37 22.07 L-31.78 20.64 L-33.08 19.10 L-34.22 17.44 L-35.17 15.66 L-35.90 13.78 L-36.41 11.83 L-36.71 9.84 L-36.84 7.83 L-36.84 5.84 L-36.76 3.86 L-36.65 1.92 L-36.54 0.00 L-36.45 -1.91 L-36.40 -3.83 L-36.37 -5.76 L-36.32 -7.72 L-36.21 -9.70 L-36.00 -11.70 L-35.63 -13.68 L-35.07 -15.61 L-34.30 -17.48 L-33.31 -19.23 L-32.13 -20.87 L-30.78 -22.37 L-29.31 -23.74 L-27.76 -24.99 L-26.17 -26.17 L-24.58 -27.29 L-23.00 -28.41 L-21.45 -29.53 L-19.92 -30.68 L-18.39 -31.86 L-16.84 -33.04 L-15.23 -34.20 L-13.55 -35.29 L-11.78 -36.26 L-9.93 -37.05 L-8.00 -37.65 L-6.02 -38.01 L-4.01 -38.13 L-1.99 -38.04 L-0.00 -37.77 L1.96 -37.35 L3.87 -36.85 L5.75 -36.31 L7.60 -35.77 L9.45 -35.26 L11.30 -34.77 L13.17 -34.31 L15.06 -33.84 L16.97 -33.31 L18.88 -32.69 L20.74 -31.94 L22.53 -31.01 L24.21 -29.90 L25.75 -28.60 L27.13 -27.13 L28.34 -25.52 L29.39 -23.80 L30.30 -22.02 L31.12 -20.21 L31.87 -18.40 L32.60 -16.61 L33.35 -14.85 L34.12 -13.10 L34.92 -11.35 L35.73 -9.57 L36.52 -7.76 L37.23 -5.90 L37.83 -3.98 L38.25 -2.00 Z" fill="none" stroke="#DDE6EE" stroke-opacity=".3" vector-effect="non-scaling-stroke" stroke-width="1"></path>
+      </g>
+      <g style="transform: rotate({{knobRot}}); transition: {{knobTrans}}">
+        <g fill="none">
+          <g class="kring" style="stroke: {{ring1}}; filter: {{ring1Glow}}">
+            <circle cx="0" cy="0" r="30" vector-effect="non-scaling-stroke" stroke-width="1.2"></circle>
+            <path d="M0.00 -30.60L0.00 -33.00M2.67 -30.48L2.88 -32.87M5.31 -30.14L5.73 -32.50M7.92 -29.56L8.54 -31.88M10.47 -28.75L11.29 -31.01M12.93 -27.73L13.95 -29.91M15.30 -26.50L16.50 -28.58M17.55 -25.07L18.93 -27.03M19.67 -23.44L21.21 -25.28M21.64 -21.64L23.33 -23.33M23.44 -19.67L25.28 -21.21M25.07 -17.55L27.03 -18.93M26.50 -15.30L28.58 -16.50M27.73 -12.93L29.91 -13.95M28.75 -10.47L31.01 -11.29M29.56 -7.92L31.88 -8.54M30.14 -5.31L32.50 -5.73M30.48 -2.67L32.87 -2.88M30.60 -0.00L33.00 -0.00M30.48 2.67L32.87 2.88M30.14 5.31L32.50 5.73M29.56 7.92L31.88 8.54M28.75 10.47L31.01 11.29M27.73 12.93L29.91 13.95M26.50 15.30L28.58 16.50M25.07 17.55L27.03 18.93M23.44 19.67L25.28 21.21M21.64 21.64L23.33 23.33M19.67 23.44L21.21 25.28M17.55 25.07L18.93 27.03M15.30 26.50L16.50 28.58M12.93 27.73L13.95 29.91M10.47 28.75L11.29 31.01M7.92 29.56L8.54 31.88M5.31 30.14L5.73 32.50M2.67 30.48L2.88 32.87M0.00 30.60L0.00 33.00M-2.67 30.48L-2.88 32.87M-5.31 30.14L-5.73 32.50M-7.92 29.56L-8.54 31.88M-10.47 28.75L-11.29 31.01M-12.93 27.73L-13.95 29.91M-15.30 26.50L-16.50 28.58M-17.55 25.07L-18.93 27.03M-19.67 23.44L-21.21 25.28M-21.64 21.64L-23.33 23.33M-23.44 19.67L-25.28 21.21M-25.07 17.55L-27.03 18.93M-26.50 15.30L-28.58 16.50M-27.73 12.93L-29.91 13.95M-28.75 10.47L-31.01 11.29M-29.56 7.92L-31.88 8.54M-30.14 5.31L-32.50 5.73M-30.48 2.67L-32.87 2.88M-30.60 0.00L-33.00 0.00M-30.48 -2.67L-32.87 -2.88M-30.14 -5.31L-32.50 -5.73M-29.56 -7.92L-31.88 -8.54M-28.75 -10.47L-31.01 -11.29M-27.73 -12.93L-29.91 -13.95M-26.50 -15.30L-28.58 -16.50M-25.07 -17.55L-27.03 -18.93M-23.44 -19.67L-25.28 -21.21M-21.64 -21.64L-23.33 -23.33M-19.67 -23.44L-21.21 -25.28M-17.55 -25.07L-18.93 -27.03M-15.30 -26.50L-16.50 -28.58M-12.93 -27.73L-13.95 -29.91M-10.47 -28.75L-11.29 -31.01M-7.92 -29.56L-8.54 -31.88M-5.31 -30.14L-5.73 -32.50M-2.67 -30.48L-2.88 -32.87" vector-effect="non-scaling-stroke" stroke-width=".9"></path>
+            <circle cx="0" cy="0" r="24.2" vector-effect="non-scaling-stroke" stroke-width=".8" stroke-opacity=".7"></circle>
+          </g>
+          <path d="M0.00 -21.00L0.00 -23.60M10.50 -18.19L11.80 -20.44M18.19 -10.50L20.44 -11.80M21.00 -0.00L23.60 -0.00M18.19 10.50L20.44 11.80M10.50 18.19L11.80 20.44M0.00 21.00L0.00 23.60M-10.50 18.19L-11.80 20.44M-18.19 10.50L-20.44 11.80M-21.00 0.00L-23.60 0.00M-18.19 -10.50L-20.44 -11.80M-10.50 -18.19L-11.80 -20.44" vector-effect="non-scaling-stroke" stroke-width="1" style="stroke: {{kLine}}; transition: stroke .4s"></path>
+          <g class="kring" stroke="none" style="fill: {{ring2}}; filter: {{ring2Glow}}"><circle cx="0.00" cy="-16.50" r=".36"></circle><circle cx="2.15" cy="-16.36" r=".36"></circle><circle cx="4.27" cy="-15.94" r=".36"></circle><circle cx="6.31" cy="-15.24" r=".36"></circle><circle cx="8.25" cy="-14.29" r=".36"></circle><circle cx="10.04" cy="-13.09" r=".36"></circle><circle cx="11.67" cy="-11.67" r=".36"></circle><circle cx="13.09" cy="-10.04" r=".36"></circle><circle cx="14.29" cy="-8.25" r=".36"></circle><circle cx="15.24" cy="-6.31" r=".36"></circle><circle cx="15.94" cy="-4.27" r=".36"></circle><circle cx="16.36" cy="-2.15" r=".36"></circle><circle cx="16.50" cy="-0.00" r=".36"></circle><circle cx="16.36" cy="2.15" r=".36"></circle><circle cx="15.94" cy="4.27" r=".36"></circle><circle cx="15.24" cy="6.31" r=".36"></circle><circle cx="14.29" cy="8.25" r=".36"></circle><circle cx="13.09" cy="10.04" r=".36"></circle><circle cx="11.67" cy="11.67" r=".36"></circle><circle cx="10.04" cy="13.09" r=".36"></circle><circle cx="8.25" cy="14.29" r=".36"></circle><circle cx="6.31" cy="15.24" r=".36"></circle><circle cx="4.27" cy="15.94" r=".36"></circle><circle cx="2.15" cy="16.36" r=".36"></circle><circle cx="0.00" cy="16.50" r=".36"></circle><circle cx="-2.15" cy="16.36" r=".36"></circle><circle cx="-4.27" cy="15.94" r=".36"></circle><circle cx="-6.31" cy="15.24" r=".36"></circle><circle cx="-8.25" cy="14.29" r=".36"></circle><circle cx="-10.04" cy="13.09" r=".36"></circle><circle cx="-11.67" cy="11.67" r=".36"></circle><circle cx="-13.09" cy="10.04" r=".36"></circle><circle cx="-14.29" cy="8.25" r=".36"></circle><circle cx="-15.24" cy="6.31" r=".36"></circle><circle cx="-15.94" cy="4.27" r=".36"></circle><circle cx="-16.36" cy="2.15" r=".36"></circle><circle cx="-16.50" cy="0.00" r=".36"></circle><circle cx="-16.36" cy="-2.15" r=".36"></circle><circle cx="-15.94" cy="-4.27" r=".36"></circle><circle cx="-15.24" cy="-6.31" r=".36"></circle><circle cx="-14.29" cy="-8.25" r=".36"></circle><circle cx="-13.09" cy="-10.04" r=".36"></circle><circle cx="-11.67" cy="-11.67" r=".36"></circle><circle cx="-10.04" cy="-13.09" r=".36"></circle><circle cx="-8.25" cy="-14.29" r=".36"></circle><circle cx="-6.31" cy="-15.24" r=".36"></circle><circle cx="-4.27" cy="-15.94" r=".36"></circle><circle cx="-2.15" cy="-16.36" r=".36"></circle></g>
+          <polygon class="kring" points="0,-10.5 9.09,5.25 -9.09,5.25" vector-effect="non-scaling-stroke" stroke-width="1.2" stroke-linejoin="round" style="stroke: {{ring3}}; filter: {{ring3Glow}}"></polygon>
+        </g>
+        <circle cx="0" cy="0" r="1.6" style="fill: {{kCore}}; transition: fill .6s"></circle>
+      </g>
+    </svg>
+  </button>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { session: null, i: 0, seen: [false, false, false, false, false], glint: null, live: null, knobActive: false,
+      open: false, opening: false, lockRot: 0, lockLive: null, step: 0, resetting: false };
+    this._acc = 0; this._lastWheel = 0; this._seg = null;
+  }
+  componentWillUnmount() { clearTimeout(this._g); clearTimeout(this._idle); clearTimeout(this._op); clearTimeout(this._rs); clearTimeout(this._bn); (this._tk || []).forEach(clearTimeout); }
+  readSession() { try { return localStorage.getItem('morrigan:session') || '0'; } catch (e) { return '0'; } }
+
+  ctx() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    const C = this._ac || (this._ac = new AC());
+    if (C.state === 'suspended') C.resume();
+    return C;
+  }
+  noise(C, t, dur, freq, q, gain, type) {
+    const len = Math.max(1, Math.floor(C.sampleRate * dur));
+    const buf = C.createBuffer(1, len, C.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let n = 0; n < len; n++) d[n] = (Math.random() * 2 - 1) * Math.pow(1 - n / len, 6);
+    const src = C.createBufferSource(); src.buffer = buf;
+    const f = C.createBiquadFilter(); f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    const g = C.createGain(); g.gain.value = gain;
+    src.connect(f); f.connect(g); g.connect(C.destination); src.start(t);
+  }
+  tone(C, t, f0, f1, dur, gain, type) {
+    const o = C.createOscillator(); o.type = type || 'sine';
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = C.createGain(); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(C.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  tick() { this.buzz(7); try { const C = this.ctx(); if (!C) return; const t = C.currentTime; this.noise(C, t, 0.028, 2600, 3.5, 0.3); this.tone(C, t, 1500, 420, 0.035, 0.05, 'triangle'); } catch (e) {} }
+  clac() { try { const C = this.ctx(); if (!C) return; const t = C.currentTime; this.noise(C, t, 0.07, 900, 2.2, 0.55); this.tone(C, t, 420, 110, 0.09, 0.16, 'triangle'); } catch (e) {} }
+  dull() { try { const C = this.ctx(); if (!C) return; const t = C.currentTime; this.noise(C, t, 0.14, 220, 0.8, 0.5, 'lowpass'); this.tone(C, t, 150, 55, 0.16, 0.18, 'sine'); } catch (e) {} }
+  buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  chime() { this.buzz([12, 80, 12, 80, 40]); try { const C = this.ctx(); if (!C) return; const t = C.currentTime; this.tone(C, t, 523, 523, 1.6, 0.06); this.tone(C, t + 0.12, 784, 784, 1.5, 0.05); this.tone(C, t + 0.24, 1175, 1175, 1.4, 0.035); } catch (e) {} }
+  ticks(n) { (this._tk || []).forEach(clearTimeout); this._tk = []; for (let k = 0; k < n; k++) this._tk.push(setTimeout(() => this.tick(), k * 110)); }
+
+  renderVals() {
+    const CARDS = [
+      { position: 'Circumstance of Birth', name: 'The Merchant', img: 'assets/card_merchant.jpg',
+        meaning: 'A rare commodity or business opportunity; deceitful or dangerous business transactions', prompt: 'You were born…', answer: 'In the midst of a deadly war, carried to safety by someone who refused to leave you behind.' },
+      { position: 'Important Childhood Influence', name: 'The Healer', img: 'assets/card_healer.jpg',
+        meaning: 'Healing; a contagious illness, disease, or curse; those who practice the healing arts', prompt: 'In your youth, you were most influenced by…', answer: 'A mentor who bandaged your wounds and encouraged you to try again with a smile.' },
+      { position: 'Barrier to Greatness', name: 'The Soldier', img: 'assets/card_soldier.jpg',
+        meaning: 'War and sacrifice; the stamina to endure great hardship', prompt: 'You are most hindered by…', answer: 'The grief of all you’ve lost before your great adventure has even begun.' },
+      { position: 'Reason for Adventuring', name: 'The Wizard', img: 'assets/card_wizard.jpg',
+        meaning: 'Mystery and riddles; those who crave magical power and knowledge', prompt: 'You become an adventurer to…', answer: 'Satisfy your curiosity and unlock the secrets of the world.' },
+      { position: 'Destiny', name: 'The Artifact', img: 'assets/card_artifact.jpg',
+        meaning: 'The importance of some physical object that must be obtained, protected, or destroyed at all costs', prompt: 'A seer foretold that you will…', answer: 'Become forever changed by an item of great power.' }
+    ];
+    const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M'];
+    const KEY = [{ dir: 'L', letter: 'E' }, { dir: 'R', letter: 'L' }, { dir: 'L', letter: 'F' }];
+    const TEAL = '#5ED6B6';
+    const STEP = 15, KSTEP = 60, LSTEP = 30, GEAR = 1, LAST = CARDS.length - 1;
+    const SLOTS = 12;
+    const slotLabel = (n) => LETTERS[((n % SLOTS) + SLOTS) % SLOTS];
+
+    const st = this.state || {};
+    const session = this.readSession();
+    const fresh = st.session !== session;
+    const seen = fresh ? [false, false, false, false, false] : (st.seen || [false, false, false, false, false]);
+    const i = fresh ? 0 : (typeof st.i === 'number' ? st.i : 0);
+    const glint = fresh ? null : st.glint;
+    const open = fresh ? false : !!st.open;
+    const opening = !fresh && !!st.opening;
+    const step = fresh ? 0 : (st.step || 0);
+    const lockRot = fresh ? 0 : (st.lockRot || 0);
+    const lockLive = !fresh && typeof st.lockLive === 'number' ? st.lockLive : null;
+    const live = !fresh && typeof st.live === 'number' ? st.live : null;
+    const base = { session, seen, i, open, step, lockRot };
+    const mod = (n, m) => ((n % m) + m) % m;
+
+    const ensure = () => {
+      if ((this.state || {}).session === session) return;
+      this.setState({ session, i: 0, seen: [false, false, false, false, false], glint: null, live: null,
+        open: false, opening: false, step: 0, lockRot: 0, lockLive: null });
+      this._seg = null; this._ln = undefined;
+    };
+
+    // ---------- la cerradura ----------
+    const curRot = lockLive === null ? lockRot : lockLive;
+    const letterN = (rot) => Math.round(-rot / LSTEP);
+    const atIndex = mod(letterN(curRot), SLOTS);
+
+    const unlock = () => {
+      this.chime();
+      this.setState({ ...base, step: 3, open: true, opening: true, lockLive: null, i: 0, live: null });
+      clearTimeout(this._op);
+      this._op = setTimeout(() => this.setState({ opening: false }), 2600);
+    };
+    const advance = () => {
+      const s = (this.state.step || 0) + 1;
+      if (s >= 3) { unlock(); return; }
+      this.setState({ step: s });
+    };
+    const resetLock = () => {
+      if ((this.state.step || 0) === 0) return;
+      this.setState({ step: 0, resetting: true });
+      clearTimeout(this._rs);
+      this._rs = setTimeout(() => this.setState({ resetting: false }), 400);
+    };
+    const matches = (seg) => {
+      const need = KEY[this.state.step || 0];
+      return need && seg.dir === need.dir && slotLabel(seg.n) === need.letter;
+    };
+    const closeSeg = () => {
+      const seg = this._seg; this._seg = null;
+      if (!seg) return;
+      if (matches(seg)) advance(); else resetLock();
+    };
+    const onCross = (dir, n, prevN) => {
+      this.tick();
+      if (this._seg && this._seg.dir !== dir) { this._seg.n = prevN; closeSeg(); }
+      if (!this._seg) this._seg = { dir, n };
+      this._seg.n = n;
+      clearTimeout(this._idle);
+      this._idle = setTimeout(() => { if (this._seg && matches(this._seg)) { this._seg = null; advance(); } }, 1100);
+    };
+    const lockTo = (rot) => {
+      const prevN = this._ln === undefined ? letterN(curRot) : this._ln;
+      const n = letterN(rot);
+      if (n !== prevN) {
+        const stepDir = n > prevN ? 'L' : 'R';
+        const inc = n > prevN ? 1 : -1;
+        for (let m = prevN + inc; m !== n + inc; m += inc) onCross(stepDir, m, m - inc);
+      }
+      this._ln = n;
+      this.setState({ lockLive: rot });
+    };
+    const lockSettle = () => {
+      const rot = typeof this.state.lockLive === 'number' ? this.state.lockLive : (this.state.lockRot || 0);
+      const n = letterN(rot);
+      this._ln = undefined;
+      this.setState({ lockRot: -n * LSTEP, lockLive: null, knobActive: false });
+    };
+    const lockStep = (dir) => {
+      const cur = this.state.lockRot || 0;
+      const n = letterN(cur);
+      const nn = dir === 'L' ? n + 1 : n - 1;
+      this._ln = n;
+      onCross(dir, nn, n);
+      this._ln = undefined;
+      this.setState({ lockRot: -nn * LSTEP });
+    };
+
+    // ---------- las cartas (abierta) ----------
+    const goTo = (k, withTicks) => {
+      if (k < 0 || k > LAST) {
+        const edge = k < 0 ? 0 : LAST;
+        this.setState({ ...base, i: edge, live: edge + (k < 0 ? -0.22 : 0.22) });
+        clearTimeout(this._bn);
+        this._bn = setTimeout(() => this.setState({ live: null }), 170);
+        return;
+      }
+      if (withTicks && k !== i) this.ticks(Math.abs(k - i));
+      this.setState({ ...base, i: k, glint: null, live: null });
+    };
+    const rubber = (f) => (f < 0 ? f * 0.35 : f > LAST ? LAST + (f - LAST) * 0.35 : f);
+    const liveTo = (f) => {
+      f = rubber(f);
+      const n = Math.max(0, Math.min(LAST, Math.round(f)));
+      if (n !== this._lastIdx) { this._lastIdx = n; this.tick(); }
+      this.setState({ live: f });
+    };
+    const settle = () => {
+      const f = typeof this.state.live === 'number' ? this.state.live : i;
+      const k = Math.max(0, Math.min(LAST, Math.round(f)));
+      this.setState({ ...base, i: k, glint: null, live: null, knobActive: false });
+    };
+    const tap = (k) => {
+      if (this._dragged) { this._dragged = false; return; }
+      if (!open) return;
+      if (k !== i) { goTo(k, true); return; }
+      if (seen[k]) return;
+      const s = seen.slice(); s[k] = true;
+      this.setState({ ...base, seen: s, glint: k, live: null });
+      clearTimeout(this._g);
+      this._g = setTimeout(() => this.setState({ glint: null }), 1600);
+    };
+
+    // ---------- gestos ----------
+    const dDown = (e) => { ensure(); this._dd = { x: e.clientX, f: i, r: curRot, on: false, id: e.pointerId, el: e.currentTarget }; this._dragged = false; this._lastIdx = i; };
+    const dMove = (e) => {
+      const d = this._dd; if (!d) return;
+      const dx = e.clientX - d.x;
+      if (!d.on && Math.abs(dx) > 6) { d.on = true; this._dragged = true; try { d.el.setPointerCapture(d.id); } catch (err) {} }
+      if (!d.on) return;
+      if (open) liveTo(d.f - dx / 90); else lockTo(d.r + dx * LSTEP / 70);
+    };
+    const dUp = () => { const d = this._dd; this._dd = null; if (d && d.on) { if (open) settle(); else lockSettle(); } };
+
+    const angleOf = (e, el) => { const r = el.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI; };
+    const kDown = (e) => {
+      if (e.stopPropagation) e.stopPropagation();
+      ensure();
+      const el = e.currentTarget;
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      this._kd = { el, a: angleOf(e, el), acc: 0, f: i, r: curRot };
+      this._lastIdx = i;
+      this.setState({ knobActive: true });
+    };
+    const kMove = (e) => {
+      if (e.stopPropagation) e.stopPropagation();
+      const k = this._kd; if (!k) return;
+      const a = angleOf(e, k.el);
+      let da = a - k.a; if (da > 180) da -= 360; if (da < -180) da += 360;
+      k.a = a; k.acc += da;
+      if (open) liveTo(k.f - k.acc / KSTEP); else lockTo(k.r + k.acc * GEAR);
+    };
+    const kUp = (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!this._kd) return; this._kd = null;
+      if (open) settle(); else lockSettle();
+    };
+    const kKey = (e) => {
+      ensure();
+      const right = e.key === 'ArrowRight' || e.key === 'ArrowUp';
+      const left = e.key === 'ArrowLeft' || e.key === 'ArrowDown';
+      if (!right && !left && e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      if (!open) { if (right) lockStep('R'); if (left) lockStep('L'); return; }
+      if (right) goTo(i + 1, true);
+      if (left) goTo(i - 1, true);
+      if (e.key === 'Enter' || e.key === ' ') tap(i);
+    };
+    const wheel = (e) => {
+      ensure();
+      const now = Date.now();
+      this._acc += (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX);
+      if (Math.abs(this._acc) > 40 && now - this._lastWheel > 160) {
+        const fwd = this._acc > 0;
+        if (open) goTo(i + (fwd ? 1 : -1), true); else lockStep(fwd ? 'R' : 'L');
+        this._acc = 0; this._lastWheel = now;
+      }
+    };
+
+    // ---------- render ----------
+    const dragging = live !== null;
+    const pos = live === null ? i : live;
+    const sel = Math.max(0, Math.min(LAST, Math.round(pos)));
+    const cards = CARDS.map((c, k) => {
+      const on = open && k === sel;
+      const delay = opening ? (0.55 + Math.abs(k - i) * 0.14) + 's' : '0s';
+      return {
+        num: String(k + 1), img: c.img, up: !!seen[k],
+        angle: open ? (k * STEP) + 'deg' : ((k - 2) * 2.2) + 'deg',
+        fanDelay: opening ? (0.75 + k * 0.08) + 's' : '0s',
+        edge: open ? 'rgba(241,244,247,0.65)' : 'rgba(241,244,247,0.13)',
+        veil: open ? '0' : '0.68',
+        z: !open ? 5 - Math.abs(k - 2) : (on ? 10 : 5 - Math.abs(k - sel)),
+        lift: on ? '-26px' : '0px',
+        scale: on ? '1.3' : '0.9',
+        op: !open ? '1' : (on ? '1' : '0.5'),
+        filter: 'none',
+        delay,
+        glowOp: on ? '1' : '0',
+        float: on && !dragging && !opening ? 'float 3.4s ease-in-out .8s infinite' : 'none',
+        rot: seen[k] ? '0deg' : '180deg',
+        shadow: on ? '0 0 30px rgba(126,200,226,.28), 0 24px 40px -18px rgba(0,0,0,.9)' : '0 10px 24px -12px rgba(0,0,0,.8)',
+        glint: glint === k,
+        numColor: on ? '#F1F4F7' : '#5F7186',
+        numOp: open ? '1' : '0',
+        starFill: open ? TEAL : 'none',
+        starStroke: open ? TEAL : '#2E4058',
+        starGlow: open ? 'drop-shadow(0 0 2px rgba(94,214,182,.95))' : 'none',
+        tap: () => tap(k),
+        aria: !open ? 'Card ' + (k + 1) + ', sealed' : on ? (seen[k] ? (k + 1) + ', ' + c.position + ', ' + c.name : 'Turn over card ' + (k + 1)) : 'Bring card ' + (k + 1) + ' to the center'
+      };
+    });
+
+    const active = !!st.knobActive || dragging || lockLive !== null;
+    const WHITE = '#F1F4F7', WGLOW = 'drop-shadow(0 0 3px rgba(234,244,246,.85))';
+    const lit = (n) => (step >= n || open) ? WHITE : (active ? '#7F90A4' : '#3E5268');
+    const litGlow = (n) => (step >= n || open) ? WGLOW : 'none';
+    const lockDragging = lockLive !== null;
+
+    return {
+      rootCls: (open ? 'open' : 'locked') + (opening ? ' opening' : '') + (st.resetting ? ' reset' : ''),
+      cards, c: CARDS[sel], isOpen: open, revealed: open && !opening && !!seen[sel] && !dragging,
+      dialRot: (-pos * STEP) + 'deg',
+      dialTrans: dragging ? 'none' : 'transform .95s cubic-bezier(.3,.7,.2,1)',
+      ringRot: open ? (-pos * STEP) + 'deg' : curRot + 'deg',
+      ringTrans: (dragging || lockDragging) ? 'none' : (opening ? 'transform 1.6s cubic-bezier(.5,0,.2,1)' : 'transform .5s cubic-bezier(.3,.7,.2,1)'),
+      knobRot: open ? (-(pos - 2) * KSTEP) + 'deg' : (curRot / GEAR) + 'deg',
+      knobTrans: (dragging || lockDragging) ? 'none' : 'transform .5s cubic-bezier(.3,.7,.2,1)',
+      knobPlace: open ? 'translate(0px, 204px) scale(.4)' : 'none',
+      knobCls: open ? 'k-on k-small' : (active ? 'k-on' : ''),
+      ringCls: active && !open ? 'ring-on' : '',
+      ring1: lit(1), ring2: lit(2), ring3: lit(3),
+      ring1Glow: litGlow(1), ring2Glow: litGlow(2), ring3Glow: litGlow(3),
+      kLine: open ? '#B9C6D3' : (active ? '#7F90A4' : '#2E4058'),
+      kCore: (open || active) ? WHITE : '#3E5268',
+
+      threadEnd: open ? '198' : '206',
+      caretY: open ? '199' : '209',
+      caretTip: open ? '204' : '216',
+      knobLabel: open ? 'Story dial, card ' + (sel + 1) + ' of 5. Turn to move between cards' : 'Lock dial, at ' + slotLabel(atIndex) + '. Turn left and right to open',
+      dDown, dMove, dUp, kDown, kMove, kUp, kKey, wheel,
+      lc: Object.fromEntries(LETTERS.map((L, n) => [L, (!open && n === atIndex) ? 'at-index' : '']))
+    };
+  }
+}
+</script>
+</body>
+</html>
