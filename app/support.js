@@ -199,15 +199,23 @@
     fit(frame);
     window.addEventListener('resize', function () { fit(frame); });
 
-    var comp = new Component(props);
     var mount = compileChildren(host);
-    var inst = null, queued = false;
-    var render = function () { queued = false; var vals = comp.renderVals() || {}; inst.update(vals); };
-    comp.__schedule = function () { if (!queued && inst) { queued = true; Promise.resolve().then(render); } };
-    inst = mount(comp.renderVals() || {});
-    inst.nodes.forEach(function (n) { frame.appendChild(n); });
-    if (typeof comp.componentDidMount === 'function') comp.componentDidMount();
-    window.addEventListener('pagehide', function () { if (typeof comp.componentWillUnmount === 'function') comp.componentWillUnmount(); });
+    var comp = null;
+    var start = function () {
+      if (comp && typeof comp.componentWillUnmount === 'function') comp.componentWillUnmount();
+      while (frame.firstChild) frame.removeChild(frame.firstChild);
+      var c = new Component(props), inst = null, queued = false;
+      var render = function () { queued = false; if (comp !== c) return; inst.update(c.renderVals() || {}); };
+      c.__schedule = function () { if (!queued && inst) { queued = true; Promise.resolve().then(render); } };
+      inst = mount(c.renderVals() || {});
+      inst.nodes.forEach(function (n) { frame.appendChild(n); });
+      comp = c;
+      if (typeof c.componentDidMount === 'function') c.componentDidMount();
+    };
+    start();
+    // Android back button: Chrome restores a frozen snapshot of the page, mid-animation.
+    // Start the screen fresh instead, as if it had been opened by a link.
+    window.addEventListener('pageshow', function (e) { if (e.persisted) start(); });
     document.documentElement.classList.add('dc-ready');
   }
 
