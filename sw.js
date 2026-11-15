@@ -1,7 +1,7 @@
 // Offline support. build.py fills in the version and file list.
 // Online: always the latest version from the site (and the copy is refreshed).
 // Offline: the copy saved on the phone.
-const CACHE = 'morrigan-5657e8a284';
+const CACHE = 'morrigan-e1ab564a71';
 const FILES = [
   "./",
   "index.html",
