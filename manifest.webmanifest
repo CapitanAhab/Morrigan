@@ -4,7 +4,7 @@
   "description": "Morrigan, bladesinger.",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0A1119",
   "theme_color": "#0A1119",
@@ -27,9 +27,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "display_override": [
-    "fullscreen",
-    "standalone"
   ]
 }
