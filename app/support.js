@@ -210,6 +210,14 @@
       inst = mount(c.renderVals() || {});
       inst.nodes.forEach(function (n) { frame.appendChild(n); });
       comp = c;
+      // Extend the screen's own background to the edges of the phone, so no seam shows
+      // if the phone's proportions differ from the design.
+      var rootEl = frame.firstElementChild;
+      if (rootEl) {
+        var cs = getComputedStyle(rootEl);
+        stage.style.backgroundColor = cs.backgroundColor !== 'rgba(0, 0, 0, 0)' ? cs.backgroundColor : '#0A1119';
+        stage.style.backgroundImage = cs.backgroundImage;
+      }
       if (typeof c.componentDidMount === 'function') c.componentDidMount();
     };
     start();

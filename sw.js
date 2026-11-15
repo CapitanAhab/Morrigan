@@ -1,5 +1,5 @@
 // Offline cache for the app. build.py fills in the version and file list.
-const CACHE = 'morrigan-81d0cabb13';
+const CACHE = 'morrigan-1c66fc7a3f';
 const FILES = [
   "./",
   "index.html",
