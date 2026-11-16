@@ -5,7 +5,7 @@ App personal de Morrigan, maga tiefling (bladesinger) en Curse of Strahd. Se ins
 ## Cómo está armada
 
 - `canvas/` tiene las pantallas tal como están en el canvas de diseño de Claude (`*.dc.html`). Es la fuente.
-- `build.py` convierte cada pantalla en una página de la app:
+- `build.mjs` (Node) convierte cada pantalla en una página de la app:
 
   | Canvas | App |
   |---|---|
@@ -21,8 +21,8 @@ App personal de Morrigan, maga tiefling (bladesinger) en Curse of Strahd. Se ins
 
 1. Se diseña y se prueba en el canvas.
 2. Se copia la pantalla nueva a `canvas/`.
-3. Se corre `python3 build.py` y se sube a `main`.
+3. Se corre `npm run build`, se prueba con `npm run serve` (http://localhost:8765/) y se sube a `main`. Un hook antes del push frena la subida si el build quedó viejo (activarlo una vez con `git config core.hooksPath .githooks`).
 
 El celular toma la versión nueva la próxima vez que se abre la app.
 
-Para sumar una pantalla nueva (por ejemplo Unwritten): agregarla a `PAGES` en `build.py`, sus imágenes a `BLOBS` y a `assets/`, y enlazarla desde el nodo correspondiente en `Main.dc.html`.
+Para sumar una pantalla nueva (por ejemplo Unwritten): agregarla a `PAGES` en `build.mjs`, sus imágenes a `BLOBS` y a `assets/`, y enlazarla desde el nodo correspondiente en `Main.dc.html`.

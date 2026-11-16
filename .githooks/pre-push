@@ -1,0 +1,3 @@
+#!/bin/sh
+# Stops a push if the app pages or sw.js were not rebuilt after changing canvas/, app/ or assets/.
+node build.mjs --check || { echo "pre-push: run 'npm run build' and commit the result."; exit 1; }
