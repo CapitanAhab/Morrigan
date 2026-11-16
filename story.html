@@ -234,8 +234,10 @@ class Component extends DCLogic {
   ctx() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    const C = this._ac || (this._ac = new AC());
-    if (C.state === 'suspended') C.resume();
+    // Una sola instancia por página: al volver con atrás el componente se vuelve a montar,
+    // y Chrome limita cuántos AudioContext puede haber abiertos.
+    const C = window.__morriganAC || (window.__morriganAC = new AC());
+    if (C.state !== 'running' && C.state !== 'closed') C.resume().catch(() => {});
     return C;
   }
   noise(C, t, dur, freq, q, gain, type) {

@@ -297,7 +297,7 @@ class Component extends DCLogic {
     const st = this.state || {};
     const phase = st.phase || 'sleep';
     const lit = st.lit;
-    const LAUGH = '/_blob/5b8946835e5469dddde954914a45798f';
+    const RESPONSE = '/_blob/5b8946835e5469dddde954914a45798f';
     const go = {};
     ['story', 'character', 'unwritten', 'familiars'].forEach((k) => {
       go[k] = (e) => {
@@ -319,18 +319,21 @@ class Component extends DCLogic {
     if (st.instant) cls += ' instant';
     if (st.restored) cls += ' restored';
     if (st.holding) cls += ' holding';
-    const laugh = () => { try { const s = new Audio(LAUGH); s.volume = 0.9; const p = s.play(); if (p && p.catch) p.catch(() => {}); } catch (err) {} };
+    // Lo que Morrigan responde al despertar. Queda precargado para que suene sin demora.
+    let pre = null;
+    try { pre = window.__morriganResponse || (window.__morriganResponse = Object.assign(new Audio(RESPONSE), { preload: 'auto' })); } catch (err) {}
+    const response = () => { try { const busy = !pre || (!pre.paused && !pre.ended); const s = busy ? new Audio(RESPONSE) : pre; s.currentTime = 0; s.volume = 0.9; const p = s.play(); if (p && p.catch) p.catch(() => {}); } catch (err) {} };
     const HOLD_DELAY = 220, HOLD_TIME = 1400;
     return {
       rootCls: cls,
       go,
-      tokenLabel: phase === 'awake' ? 'Hear Morrigan laugh. Hold to let her sleep' : 'Touch the token to wake the circle',
+      tokenLabel: phase === 'awake' ? 'Hold to let her sleep' : 'Touch the token to wake the circle',
       noMenu: (e) => { if (e && e.preventDefault) e.preventDefault(); },
       tap: () => {
         if (this._swallow) { this._swallow = false; return; }
         if (this.state.lit) return;
-        laugh();
         if (phase === 'awake') return;
+        response();
         try { localStorage.setItem('morrigan:session', String(Date.now())); } catch (err) {}
         try { sessionStorage.setItem('morrigan:awake', '1'); } catch (err) {}
         this.setState({ phase: 'awake', instant: false, restored: false });

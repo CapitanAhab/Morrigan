@@ -205,9 +205,13 @@
       if (comp && typeof comp.componentWillUnmount === 'function') comp.componentWillUnmount();
       while (frame.firstChild) frame.removeChild(frame.firstChild);
       var c = new Component(props), inst = null, queued = false;
-      var render = function () { queued = false; if (comp !== c) return; inst.update(c.renderVals() || {}); };
+      var render = function () {
+        queued = false; if (comp !== c) return;
+        try { inst.update(c.renderVals() || {}); } catch (err) { console.error('Screen failed to update', err); }
+      };
       c.__schedule = function () { if (!queued && inst) { queued = true; Promise.resolve().then(render); } };
-      inst = mount(c.renderVals() || {});
+      try { inst = mount(c.renderVals() || {}); }
+      catch (err) { console.error('Screen failed to render', err); return; }
       inst.nodes.forEach(function (n) { frame.appendChild(n); });
       comp = c;
       // Extend the screen's own background to the edges of the phone, so no seam shows
@@ -233,8 +237,12 @@
   // Keep the screen awake while the app is open (Android).
   var lock = null;
   function wake() {
-    if (!('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
-    navigator.wakeLock.request('screen').then(function (l) { lock = l; }).catch(function () {});
+    if (!('wakeLock' in navigator) || document.visibilityState !== 'visible' || (lock && !lock.released)) return;
+    navigator.wakeLock.request('screen').then(function (l) {
+      lock = l;
+      // If the system lets go of it while the app is still on screen (battery saver...), ask again once it settles.
+      l.addEventListener('release', function () { setTimeout(wake, 1000); });
+    }).catch(function () {});
   }
   document.addEventListener('visibilitychange', wake);
   document.addEventListener('pointerdown', function once() { wake(); document.removeEventListener('pointerdown', once); });

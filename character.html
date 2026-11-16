@@ -182,7 +182,7 @@ class Component extends DCLogic {
     super(props);
     this.state = { flipped: false, session: null, tx: 0, ty: 0, live: false, glint: 0 };
   }
-  componentWillUnmount() { clearTimeout(this._g); cancelAnimationFrame(this._raf); if (this._gyro) window.removeEventListener('deviceorientation', this._gyro); }
+  componentWillUnmount() { clearTimeout(this._g); cancelAnimationFrame(this._raf); if (this._gyro) window.removeEventListener('deviceorientation', this._gyro); if (this._vis) document.removeEventListener('visibilitychange', this._vis); }
   // En el celu, la carta sigue la inclinación del teléfono. La posición de reposo se adapta sola.
   listenGyro() {
     if (this._gyro || typeof window === 'undefined' || !('DeviceOrientationEvent' in window)) return;
@@ -197,6 +197,9 @@ class Component extends DCLogic {
       this._raf = requestAnimationFrame(() => { this._raf = 0; this.setState({ ...this._next, live: true }); });
     };
     window.addEventListener('deviceorientation', this._gyro);
+    // Al volver de segundo plano, el reposo se toma de nuevo para que la carta no salte.
+    this._vis = () => { this._b0 = null; this._g0 = null; };
+    document.addEventListener('visibilitychange', this._vis);
   }
   renderVals() {
     let session = '0';

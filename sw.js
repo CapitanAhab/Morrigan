@@ -1,7 +1,7 @@
 // Offline support. build.mjs fills in the version and file list.
 // Online: always the latest version from the site (and the copy is refreshed).
 // Offline: the copy saved on the phone.
-const CACHE = 'morrigan-e1ab564a71';
+const CACHE = 'morrigan-8b8bf9c88b';
 const FILES = [
   "./",
   "index.html",
