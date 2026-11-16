@@ -66,6 +66,14 @@ a{color:#C3CDD8}a:hover{color:#F1F4F7}
 .reset .kring{animation:shake .35s ease}
 @keyframes shake{25%{transform:translateX(-1.5px)}75%{transform:translateX(1.5px)}}
 
+/* motas de luz que suben muy lento, como en Familiars; se apartan mientras la caja se abre */
+.motes{position:absolute;inset:0;pointer-events:none;overflow:hidden;transition:opacity .8s ease}
+.opening .motes{opacity:0;transition:opacity .3s ease}
+.mote{position:absolute;opacity:0;animation:moteup linear infinite}
+.mote i{display:block;border-radius:50%;animation:motesway ease-in-out infinite alternate}
+@keyframes moteup{0%{transform:translateY(0);opacity:0}12%{opacity:var(--o)}80%{opacity:var(--o)}100%{transform:translateY(-520px);opacity:0}}
+@keyframes motesway{from{transform:translateX(-7px)}to{transform:translateX(7px)}}
+
 /* apertura: la onda despierta todo */
 .openwave{fill:none;stroke:#DDE6EE;opacity:0}
 .opening .openwave{animation:openwave 1.8s cubic-bezier(.2,.6,.3,1) forwards}
@@ -78,10 +86,13 @@ a{color:#C3CDD8}a:hover{color:#F1F4F7}
   .thread{stroke-dashoffset:0}.tdot{opacity:1}
   .flipper,.dial,.ring,.lev,.knob{transition:none !important}
   .floaty{animation:none !important}
+  .mote{animation:none;display:none}
 }
 </style>
 </helmet>
 <div class="{{rootCls}}" onWheel="{{wheel}}" onPointerDown="{{dDown}}" onPointerMove="{{dMove}}" onPointerUp="{{dUp}}" onPointerCancel="{{dUp}}" style="touch-action: none; width: 390px; height: 844px; position: relative; overflow: hidden; background: radial-gradient(110% 55% at 50% 40%, #16263C 0%, #0A1119 66%); color: #C3CDD8; font-family: Jost, sans-serif; font-weight: 300">
+
+  <div class="motes" aria-hidden="true"><span class="mote" style="left: 269px; top: 706px; animation-duration: 19.8s; animation-delay: -6.5s; --o: 0.66"><i style="width: 2.6px; height: 2.6px; background: #9ED8E8; box-shadow: 0 0 8px #9ED8E8; animation-duration: 5.8s; animation-delay: -4.4s"></i></span><span class="mote" style="left: 112px; top: 664px; animation-duration: 24.3s; animation-delay: -17.2s; --o: 0.64"><i style="width: 2.2px; height: 2.2px; background: #9ED8E8; box-shadow: 0 0 7px #9ED8E8; animation-duration: 7.9s; animation-delay: -0.4s"></i></span><span class="mote" style="left: 74px; top: 700px; animation-duration: 28.0s; animation-delay: -25.8s; --o: 0.63"><i style="width: 1.8px; height: 1.8px; background: #EAF4F6; box-shadow: 0 0 5px #EAF4F6; animation-duration: 7.9s; animation-delay: -5.1s"></i></span><span class="mote" style="left: 142px; top: 785px; animation-duration: 27.8s; animation-delay: -9.2s; --o: 0.45"><i style="width: 2.6px; height: 2.6px; background: #9ED8E8; box-shadow: 0 0 8px #9ED8E8; animation-duration: 6.3s; animation-delay: -1.9s"></i></span><span class="mote" style="left: 269px; top: 796px; animation-duration: 28.2s; animation-delay: -1.7s; --o: 0.49"><i style="width: 1.8px; height: 1.8px; background: #9ED8E8; box-shadow: 0 0 5px #9ED8E8; animation-duration: 7.0s; animation-delay: -3.9s"></i></span><span class="mote" style="left: 52px; top: 662px; animation-duration: 18.5s; animation-delay: -6.4s; --o: 0.63"><i style="width: 1.8px; height: 1.8px; background: #9ED8E8; box-shadow: 0 0 5px #9ED8E8; animation-duration: 8.3s; animation-delay: -7.7s"></i></span><span class="mote" style="left: 151px; top: 677px; animation-duration: 21.3s; animation-delay: -7.1s; --o: 0.58"><i style="width: 1.4px; height: 1.4px; background: #9ED8E8; box-shadow: 0 0 4px #9ED8E8; animation-duration: 6.0s; animation-delay: -3.7s"></i></span><span class="mote" style="left: 239px; top: 732px; animation-duration: 22.0s; animation-delay: -11.4s; --o: 0.57"><i style="width: 2.6px; height: 2.6px; background: #9ED8E8; box-shadow: 0 0 8px #9ED8E8; animation-duration: 8.1s; animation-delay: -5.6s"></i></span><span class="mote" style="left: 223px; top: 658px; animation-duration: 25.2s; animation-delay: -8.3s; --o: 0.53"><i style="width: 1.8px; height: 1.8px; background: #EAF4F6; box-shadow: 0 0 5px #EAF4F6; animation-duration: 5.9s; animation-delay: -4.7s"></i></span><span class="mote" style="left: 165px; top: 606px; animation-duration: 26.6s; animation-delay: -2.1s; --o: 0.74"><i style="width: 1.4px; height: 1.4px; background: #EAF4F6; box-shadow: 0 0 4px #EAF4F6; animation-duration: 5.3s; animation-delay: -1.2s"></i></span><span class="mote" style="left: 78px; top: 808px; animation-duration: 21.9s; animation-delay: -19.4s; --o: 0.70"><i style="width: 1.4px; height: 1.4px; background: #EAF4F6; box-shadow: 0 0 4px #EAF4F6; animation-duration: 7.1s; animation-delay: -6.3s"></i></span><span class="mote" style="left: 114px; top: 586px; animation-duration: 19.6s; animation-delay: -0.0s; --o: 0.61"><i style="width: 2.6px; height: 2.6px; background: #EAF4F6; box-shadow: 0 0 8px #EAF4F6; animation-duration: 5.0s; animation-delay: -1.2s"></i></span></div>
 
   <div class="ring {{ringCls}}" style="position: absolute; left: 195px; top: 905px; width: 0; height: 0; transform: rotate({{ringRot}}); transition: {{ringTrans}}; pointer-events: none">
     <svg viewBox="-760 -760 1520 1520" width="1520" height="1520" aria-hidden="true" style="position: absolute; left: -760px; top: -760px; overflow: visible">
@@ -222,6 +233,15 @@ class Component extends DCLogic {
     this.state = { session: null, i: 0, seen: [false, false, false, false, false], glint: null, live: null, knobActive: false,
       open: false, opening: false, lockRot: 0, lockLive: null, step: 0, resetting: false };
     this._acc = 0; this._lastWheel = 0; this._seg = null;
+    // Si la caja ya se abrió en esta sesión (Morrigan sigue despierta), vuelve como quedó: abierta,
+    // en la misma carta y con las mismas cartas dadas vuelta. Sin repetir la apertura.
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('morrigan:story') || 'null');
+      const session = this.readSession();
+      if (saved && saved.session === session && Array.isArray(saved.seen) && saved.seen.length === 5 && saved.i >= 0 && saved.i <= 4) {
+        Object.assign(this.state, { session, open: true, step: 3, i: Math.round(saved.i), seen: saved.seen.map(Boolean) });
+      }
+    } catch (e) {}
   }
   componentWillUnmount() { clearTimeout(this._g); clearTimeout(this._idle); clearTimeout(this._op); clearTimeout(this._rs); clearTimeout(this._bn); (this._tk || []).forEach(clearTimeout); }
   readSession() { try { return localStorage.getItem('morrigan:session') || '0'; } catch (e) { return '0'; } }
@@ -292,6 +312,7 @@ class Component extends DCLogic {
     const live = !fresh && typeof st.live === 'number' ? st.live : null;
     const base = { session, seen, i, open, step, lockRot };
     const mod = (n, m) => ((n % m) + m) % m;
+    const keep = (card, turned) => { try { sessionStorage.setItem('morrigan:story', JSON.stringify({ session, i: card, seen: turned })); } catch (e) {} };
 
     const ensure = () => {
       if ((this.state || {}).session === session) return;
@@ -307,6 +328,7 @@ class Component extends DCLogic {
 
     const unlock = () => {
       this.chime();
+      keep(0, seen);
       this.setState({ ...base, step: 3, open: true, opening: true, lockLive: null, i: 0, live: null });
       clearTimeout(this._op);
       this._op = setTimeout(() => this.setState({ opening: false }), 2600);
@@ -376,6 +398,7 @@ class Component extends DCLogic {
         return;
       }
       if (withTicks && k !== i) this.ticks(Math.abs(k - i));
+      keep(k, seen);
       this.setState({ ...base, i: k, glint: null, live: null });
     };
     const rubber = (f) => (f < 0 ? f * 0.35 : f > LAST ? LAST + (f - LAST) * 0.35 : f);
@@ -388,6 +411,7 @@ class Component extends DCLogic {
     const settle = () => {
       const f = typeof this.state.live === 'number' ? this.state.live : i;
       const k = Math.max(0, Math.min(LAST, Math.round(f)));
+      keep(k, seen);
       this.setState({ ...base, i: k, glint: null, live: null, knobActive: false });
     };
     const tap = (k) => {
@@ -396,6 +420,7 @@ class Component extends DCLogic {
       if (k !== i) { goTo(k, true); return; }
       if (seen[k]) return;
       const s = seen.slice(); s[k] = true;
+      keep(k, s);
       this.setState({ ...base, seen: s, glint: k, live: null });
       clearTimeout(this._g);
       this._g = setTimeout(() => this.setState({ glint: null }), 1600);
