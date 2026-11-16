@@ -168,10 +168,12 @@
     };
   }
 
-  function fit(frame) {
-    var vw = window.innerWidth, vh = window.innerHeight;
-    var s = Math.min(vw / W, vh / H);
-    frame.style.transform = 'translate(' + ((vw - W * s) / 2) + 'px,' + ((vh - H * s) / 2) + 'px) scale(' + s + ')';
+  // The screen fits inside the safe area: in the APK the page runs under the status bar and the camera;
+  // in the PWA the safe area is the whole window. The background still reaches every edge.
+  function fit(frame, safe) {
+    var r = safe ? safe.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    var s = Math.min(r.width / W, r.height / H);
+    frame.style.transform = 'translate(' + (r.left + (r.width - W * s) / 2) + 'px,' + (r.top + (r.height - H * s) / 2) + 'px) scale(' + s + ')';
   }
 
   function boot() {
@@ -195,9 +197,13 @@
 
     var stage = document.createElement('div'); stage.id = 'dc-stage';
     var frame = document.createElement('div'); frame.id = 'dc-frame';
-    stage.appendChild(frame); document.body.appendChild(stage);
-    fit(frame);
-    window.addEventListener('resize', function () { fit(frame); });
+    var safe = document.createElement('div'); safe.id = 'dc-safe';
+    stage.appendChild(safe); stage.appendChild(frame); document.body.appendChild(stage);
+    var refit = function () { fit(frame, safe); };
+    refit();
+    window.addEventListener('resize', refit);
+    // Capacitor reports the size of the bars as CSS variables on <html>, sometimes after the first paint.
+    if (window.MutationObserver) new MutationObserver(refit).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
 
     var mount = compileChildren(host);
     var comp = null;
@@ -249,7 +255,8 @@
   wake();
 
   // Offline support.
-  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  // Not inside the APK: there the files are already on the phone.
+  if ('serviceWorker' in navigator && !window.Capacitor && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); });
   }
 })();

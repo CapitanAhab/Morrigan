@@ -1,0 +1,14 @@
+{
+  "appId": "com.capitanahab.morrigan",
+  "appName": "Morrigan",
+  "webDir": "www",
+  "backgroundColor": "#0A1119",
+  "android": {
+    "backgroundColor": "#0A1119"
+  },
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK"
+    }
+  }
+}
