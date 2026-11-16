@@ -2,7 +2,7 @@
 // Screens always open from the copy saved on the phone (instant, works offline).
 // When the site changes, this file changes: the browser installs it in the background with a fresh
 // copy of everything, it takes over, and support.js reloads the Menu once.
-const CACHE = 'morrigan-f7caf65601';
+const CACHE = 'morrigan-f1465debe6';
 const FILES = [
   "./",
   "index.html",
