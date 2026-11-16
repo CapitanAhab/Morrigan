@@ -47,6 +47,8 @@ a{color:#C3CDD8}a:hover{color:#F1F4F7}
 .locked .key-l{animation:keyhint 13s ease-in-out 4.7s infinite}
 .locked .key-f{animation:keyhint 13s ease-in-out 5.3s infinite}
 @keyframes keyhint{0%,100%{fill:#4A6078}2%{fill:#5ED6B6}6%{fill:#4A6078}}
+/* Mientras se gira la perilla, las pistas de fondo se pausan (menos repintado); siguen al soltar. */
+.turning .hintsweep,.turning .key-e,.turning .key-l,.turning .key-f{animation-play-state:paused}
 
 /* la perilla respira mientras la tocás */
 .kb{opacity:0;transition:opacity .5s ease}
@@ -496,7 +498,7 @@ class Component extends DCLogic {
     const lockDragging = lockLive !== null;
 
     return {
-      rootCls: (open ? 'open' : 'locked') + (opening ? ' opening' : '') + (st.resetting ? ' reset' : ''),
+      rootCls: (open ? 'open' : 'locked') + (opening ? ' opening' : '') + (st.resetting ? ' reset' : '') + (active ? ' turning' : ''),
       cards, c: CARDS[sel], isOpen: open, revealed: open && !opening && !!seen[sel] && !dragging,
       dialRot: (-pos * STEP) + 'deg',
       dialTrans: dragging ? 'none' : 'transform .95s cubic-bezier(.3,.7,.2,1)',
