@@ -2,7 +2,7 @@
 // Screens always open from the copy saved on the phone (instant, works offline).
 // When the site changes, this file changes: the browser installs it in the background with a fresh
 // copy of everything, it takes over, and support.js reloads the Menu once.
-const CACHE = 'morrigan-451d24ad5b';
+const CACHE = 'morrigan-bb3f642771';
 const FILES = [
   "./",
   "index.html",
@@ -14,7 +14,6 @@ const FILES = [
   "app/support.js",
   "app/fonts/cormorant-garamond-latin-500-italic.woff2",
   "app/fonts/cormorant-garamond-latin-500-normal.woff2",
-  "app/fonts/cormorant-garamond-latin-600-italic.woff2",
   "app/fonts/cormorant-garamond-latin-600-normal.woff2",
   "app/fonts/jost-latin-300-normal.woff2",
   "app/fonts/jost-latin-400-normal.woff2",

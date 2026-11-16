@@ -168,8 +168,8 @@
     };
   }
 
-  // The screen fits inside the safe area: in the APK the page runs under the status bar and the camera;
-  // in the PWA the safe area is the whole window. The background still reaches every edge.
+  // The screen fits inside the safe area (the whole window, unless the browser reports insets).
+  // The background still reaches every edge.
   function fit(frame, safe) {
     var r = safe ? safe.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
     var s = Math.min(r.width / W, r.height / H);
@@ -202,8 +202,6 @@
     var refit = function () { fit(frame, safe); };
     refit();
     window.addEventListener('resize', refit);
-    // Capacitor reports the size of the bars as CSS variables on <html>, sometimes after the first paint.
-    if (window.MutationObserver) new MutationObserver(refit).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
 
     var mount = compileChildren(host);
     var comp = null;
@@ -255,8 +253,7 @@
   wake();
 
   // Offline support.
-  // Not inside the APK: there the files are already on the phone.
-  if ('serviceWorker' in navigator && !window.Capacitor && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     var sw = navigator.serviceWorker;
     // A new version took over: show it right away, but only on the Menu, so nothing is cut short.
     // The other screens get it on the next change of screen. Not on the very first install.
