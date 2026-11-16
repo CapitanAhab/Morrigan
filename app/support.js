@@ -257,6 +257,21 @@
   // Offline support.
   // Not inside the APK: there the files are already on the phone.
   if ('serviceWorker' in navigator && !window.Capacitor && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); });
+    var sw = navigator.serviceWorker;
+    // A new version took over: show it right away, but only on the Menu, so nothing is cut short.
+    // The other screens get it on the next change of screen. Not on the very first install.
+    var had = !!sw.controller, reloaded = false;
+    sw.addEventListener('controllerchange', function () {
+      if (!had || reloaded || !/(\/|\/index\.html)$/.test(location.pathname)) return;
+      reloaded = true; location.reload();
+    });
+    window.addEventListener('load', function () {
+      sw.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+        // Coming back to the app without changing screen: look for a new version too.
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') reg.update().catch(function () {});
+        });
+      }).catch(function () {});
+    });
   }
 })();

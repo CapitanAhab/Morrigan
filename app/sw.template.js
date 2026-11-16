@@ -1,6 +1,7 @@
 // Offline support. build.mjs fills in the version and file list.
-// Online: always the latest version from the site (and the copy is refreshed).
-// Offline: the copy saved on the phone.
+// Screens always open from the copy saved on the phone (instant, works offline).
+// When the site changes, this file changes: the browser installs it in the background with a fresh
+// copy of everything, it takes over, and support.js reloads the Menu once.
 const CACHE = 'morrigan-__VERSION__';
 const FILES = __FILES__;
 
@@ -24,11 +25,8 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(
-    fetch(req, { cache: 'no-cache' })
-      .then((res) => {
-        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-        return res;
-      })
-      .catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('./')))
+    caches.open(CACHE)
+      .then((c) => c.match(req, { ignoreSearch: true }))
+      .then((hit) => hit || fetch(req))
   );
 });
