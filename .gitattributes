@@ -5,3 +5,4 @@
 *.jpg binary
 *.png binary
 *.bat text eol=crlf
+*.wav binary

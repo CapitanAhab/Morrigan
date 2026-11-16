@@ -1,7 +1,7 @@
 // Offline support. build.mjs fills in the version and file list.
 // Online: always the latest version from the site (and the copy is refreshed).
 // Offline: the copy saved on the phone.
-const CACHE = 'morrigan-7ab20cbd72';
+const CACHE = 'morrigan-0d7069b898';
 const FILES = [
   "./",
   "index.html",
@@ -18,7 +18,6 @@ const FILES = [
   "app/fonts/jost-latin-300-normal.woff2",
   "app/fonts/jost-latin-400-normal.woff2",
   "app/fonts/jost-latin-500-normal.woff2",
-  "assets/cackle.webm",
   "assets/card_artifact.jpg",
   "assets/card_healer.jpg",
   "assets/card_merchant.jpg",
@@ -31,6 +30,7 @@ const FILES = [
   "assets/fam_spider.webp",
   "assets/morrigan_ink.webp",
   "assets/morrigan_token.webp",
+  "assets/response.wav",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png"

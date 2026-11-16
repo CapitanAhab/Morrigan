@@ -27,7 +27,7 @@ const PAGES = {
 // canvas asset id -> file in assets/
 const BLOBS = {
   b6c60ccd20b4ce322455b33677d5bcce: 'morrigan_token.webp',
-  '5b8946835e5469dddde954914a45798f': 'cackle.webm',
+  '5b8946835e5469dddde954914a45798f': 'response.wav',
   '1bff2fc10252063d2ce12197169bf11d': 'morrigan_ink.webp',
   '986ef4ce4ae906f6680cdf460210d4d6': 'fam_owl.webp',
   '735c097268c39495e2f76c6aa143e1fd': 'fam_raven.webp',
@@ -110,24 +110,13 @@ const { sw, version, count } = buildSw(outputs);
 outputs['sw.js'] = sw;
 
 // www/: the copy of the app that goes inside the APK (npx cap sync). Not in the repo.
-// If local-assets/ has a response.* sound (never in the repo), the APK uses it instead of the public one.
 function buildWww(pages) {
   const WWW = join(ROOT, 'www');
   rmSync(WWW, { recursive: true, force: true });
   mkdirSync(WWW);
   for (const dir of ['app', 'assets', 'icons']) cpSync(join(ROOT, dir), join(WWW, dir), { recursive: true });
   cpSync(join(ROOT, 'manifest.webmanifest'), join(WWW, 'manifest.webmanifest'));
-  const local = existsSync(join(ROOT, 'local-assets'))
-    ? readdirSync(join(ROOT, 'local-assets')).find((f) => /^response\.(wav|ogg|mp3|m4a|webm)$/i.test(f)) : null;
-  for (const [f, text] of Object.entries(pages)) {
-    let out = text;
-    if (local) {
-      cpSync(join(ROOT, 'local-assets', local), join(WWW, 'assets', local));
-      out = out.split('assets/cackle.webm').join('assets/' + local);
-    }
-    writeFileSync(join(WWW, f), out, 'utf8');
-  }
-  return local;
+  for (const [f, text] of Object.entries(pages)) writeFileSync(join(WWW, f), text, 'utf8');
 }
 
 if (check) {
@@ -139,6 +128,6 @@ if (check) {
   for (const [board, page] of Object.entries(PAGES)) console.log(`${board}.dc.html -> ${page}.html`);
   console.log('cache version', version, '-', count, 'files');
   const pages = Object.fromEntries(Object.values(PAGES).map((p) => [`${p}.html`, outputs[`${p}.html`]]));
-  const local = buildWww(pages);
-  console.log('www/ for the APK' + (local ? ` (local sound: ${local})` : ''));
+  buildWww(pages);
+  console.log('www/ for the APK');
 }
