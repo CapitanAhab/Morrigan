@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A1119">
+<title>Morrigan</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="app/app.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #0A1119; }
+  body { display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; }
+  label { font-size: 22px; font-style: italic; color: #C3CDD8; border-bottom: 1px solid rgba(158, 216, 232, .35); padding: 6px 2px; cursor: pointer; }
+  label:active { color: #9ED8E8; }
+  input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  p { position: fixed; bottom: 48px; left: 0; right: 0; margin: 0; text-align: center; font-family: Jost, sans-serif; font-weight: 300; font-size: 13px; color: #8E9FB2; }
+</style>
+</head>
+<body>
+<label>Her voice<input id="pick" type="file" accept="audio/*" multiple></label>
+<p id="note"></p>
+<script src="app/voices.js"></script>
+<script>
+  // Morrigan's voices, from the phone into the app (they never go to the repo). She speaks once when they are kept.
+  document.getElementById('pick').addEventListener('change', function (e) {
+    var note = document.getElementById('note');
+    note.textContent = '';
+    MorriganVoices.save(e.target.files).then(function (names) {
+      if (!names.length) { note.textContent = 'No voice recognised'; return; }
+      return MorriganVoices.load().then(function (urls) {
+        if (!urls.response) return;
+        var a = new Audio(urls.response); a.volume = 0.9; a.play().catch(function () {});
+      });
+    }).catch(function () { note.textContent = 'Could not keep them'; });
+  });
+</script>
+</body>
+</html>

@@ -299,6 +299,15 @@ a{color:#C3CDD8}a:hover{color:#F1F4F7}
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+// Lo que dice Morrigan: al despertar (y una rara), al revolverse dormida y al dormirla.
+// Los audios no están en el repo: viven en el teléfono (app/voices.js, se cargan desde voices.html).
+// Sin ellos, Morrigan queda callada.
+const VOICE = {
+  response: 'response',
+  rare: 'rarewakeup',
+  stir: ['revolverse_1', 'revolverse_2', 'revolverse_3'],
+  sleep: 'sleep'
+};
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -308,8 +317,12 @@ class Component extends DCLogic {
     if (restored) this._i = setTimeout(() => { if (this.state.instant) this.setState({ instant: false }); }, 400);
     this._rate = 1; this._boost = 1; this._target = 1;
   }
-  componentDidMount() { if (this.state.phase === 'sleep') this._startSleep(); }
-  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._r); clearTimeout(this._i); clearTimeout(this._hs); clearTimeout(this._h); clearTimeout(this._f1); clearTimeout(this._f2); this._stopSleep(); }
+  componentDidMount() {
+    if (this.state.phase === 'sleep') this._startSleep();
+    // las voces se leen del teléfono y quedan precargadas
+    try { if (window.MorriganVoices) window.MorriganVoices.load().then(() => [VOICE.response, VOICE.rare, VOICE.sleep].concat(VOICE.stir).forEach((v) => this._voice(v))); } catch (e) {}
+  }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._r); clearTimeout(this._i); clearTimeout(this._hs); clearTimeout(this._h); clearTimeout(this._f0); clearTimeout(this._f1); clearTimeout(this._f2); this._stopSleep(); }
 
   // ——— sueño irregular: fases liviano / profundo / sueña, más hondo con el tiempo ———
   _still() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
@@ -419,6 +432,11 @@ class Component extends DCLogic {
     const now = Date.now();
     if (now - (this._stirAt || 0) < 8000) return;
     this._stirAt = now;
+    // a veces protesta medio dormida (no más de una frase cada 20 s)
+    if (now - (this._spokeAt || 0) > 20000 && Math.random() < .5) {
+      this._spokeAt = now;
+      this._say(this._fromBag('stir', VOICE.stir), .8);
+    }
     this._boost = 1.7;
     this._rampTo(this._target * this._boost, 600);
     if (this._phase !== 'deep') this._blink(.8);
@@ -427,16 +445,45 @@ class Component extends DCLogic {
   }
   // última exhalación: al soltar todo cae al centro y el ojo se apaga último
   _fall() {
-    clearTimeout(this._hs); clearTimeout(this._h); clearTimeout(this._f1); clearTimeout(this._f2);
+    clearTimeout(this._hs); clearTimeout(this._h); clearTimeout(this._f0); clearTimeout(this._f1); clearTimeout(this._f2);
     this.setState({ phase: 'falling', inhale: false, holding: false, lit: null, restored: false, instant: false });
+    this._f0 = setTimeout(() => this._say(VOICE.sleep, .7), 300);
     this._f1 = setTimeout(() => this._blink(.9), 1300);
     this._f2 = setTimeout(() => { this.setState({ phase: 'sleep' }); this._startSleep(); }, 2100);
+  }
+  // ——— voces (Varanna). Quedan precargadas para que suenen sin demora ———
+  _voice(name) {
+    const urls = window.__morriganVoiceURLs, src = urls && urls[name];
+    if (!src) return null;
+    const bank = window.__morriganVoices || (window.__morriganVoices = {});
+    return bank[name] || (bank[name] = Object.assign(new Audio(src), { preload: 'auto' }));
+  }
+  _say(name, vol) {
+    try {
+      const pre = this._voice(name);
+      if (!pre) return;
+      const s = !pre.paused && !pre.ended ? new Audio(pre.src) : pre;
+      s.currentTime = 0; s.volume = vol;
+      const p = s.play(); if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+  }
+  // bolsa barajada: no repite hasta haberlas dicho todas
+  _fromBag(name, list) {
+    const key = 'morrigan:bag:' + name;
+    let bag = [];
+    try { bag = JSON.parse(localStorage.getItem(key) || '[]').filter((i) => i >= 0 && i < list.length); } catch (e) {}
+    if (!bag.length) {
+      bag = list.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+    }
+    const i = bag.shift();
+    try { localStorage.setItem(key, JSON.stringify(bag)); } catch (e) {}
+    return list[i];
   }
   renderVals() {
     const st = this.state || {};
     const phase = st.phase || 'sleep';
     const lit = st.lit;
-    const RESPONSE = '/_blob/5b8946835e5469dddde954914a45798f';
     const go = {};
     ['story', 'character', 'unwritten', 'familiars'].forEach((k) => {
       go[k] = (e) => {
@@ -460,10 +507,6 @@ class Component extends DCLogic {
     if (st.instant) cls += ' instant';
     if (st.restored) cls += ' restored';
     if (st.holding) cls += ' holding';
-    // Lo que Morrigan responde al despertar. Queda precargado para que suene sin demora.
-    let pre = null;
-    try { pre = window.__morriganResponse || (window.__morriganResponse = Object.assign(new Audio(RESPONSE), { preload: 'auto' })); } catch (err) {}
-    const response = () => { try { const busy = !pre || (!pre.paused && !pre.ended); const s = busy ? new Audio(RESPONSE) : pre; s.currentTime = 0; s.volume = 0.9; const p = s.play(); if (p && p.catch) p.catch(() => {}); } catch (err) {} };
     const HOLD_DELAY = 220, HOLD_TIME = 1400;
     return {
       rootCls: cls,
@@ -476,7 +519,8 @@ class Component extends DCLogic {
         if (this.state.lit) return;
         if (phase !== 'sleep') return;
         this._stopSleep();
-        response();
+        // de vez en cuando (1 de cada 20) despierta con otra frase
+        this._say(Math.random() < 1 / 20 ? VOICE.rare : VOICE.response, .9);
         try { localStorage.setItem('morrigan:session', String(Date.now())); } catch (err) {}
         try { sessionStorage.setItem('morrigan:awake', '1'); } catch (err) {}
         this.setState({ phase: 'awake', instant: false, restored: false });

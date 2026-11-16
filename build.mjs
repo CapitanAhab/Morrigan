@@ -27,7 +27,6 @@ const PAGES = {
 // canvas asset id -> file in assets/
 const BLOBS = {
   b6c60ccd20b4ce322455b33677d5bcce: 'morrigan_token.webp',
-  '5b8946835e5469dddde954914a45798f': 'response.wav',
   '1bff2fc10252063d2ce12197169bf11d': 'morrigan_ink.webp',
   '986ef4ce4ae906f6680cdf460210d4d6': 'fam_owl.webp',
   '735c097268c39495e2f76c6aa143e1fd': 'fam_raven.webp',
@@ -49,6 +48,7 @@ const HEAD = `<meta name="viewport" content="width=device-width, initial-scale=1
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="app/app.css">
+<script src="app/voices.js"></script>
 <script src="app/support.js"></script>`;
 
 const fail = (msg) => { console.error(msg); process.exit(1); };
@@ -86,7 +86,7 @@ function isText(rel) { return /\.(html|js|css|json|webmanifest|md|svg|txt)$/i.te
 
 function buildSw(pages) {
   let files = Object.values(PAGES).map((p) => `${p}.html`);
-  files.push('manifest.webmanifest', 'app/app.css', 'app/support.js');
+  files.push('voices.html', 'manifest.webmanifest', 'app/app.css', 'app/voices.js', 'app/support.js');
   for (const folder of ['app/fonts', 'assets', 'icons']) files = files.concat(listFolder(folder));
   const h = createHash('sha256');
   for (const f of files) {
