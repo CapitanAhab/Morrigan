@@ -291,7 +291,7 @@ class Component extends DCLogic {
     if (['owl', 'raven', 'cat', 'octopus', 'spider'].indexOf(active) < 0) active = '';
     this.state = { sel: active || 'owl', active, path: [], live: null, hint: false, fx: '', chold: false, fold: false, rules: false, swap: 0 };
   }
-  componentWillUnmount() { clearTimeout(this._hint); clearTimeout(this._fx); clearTimeout(this._ch); clearTimeout(this._fd); this.stopHoldPulses(); }
+  componentWillUnmount() { clearTimeout(this._hint); clearTimeout(this._fx); clearTimeout(this._ch); clearTimeout(this._fd); clearTimeout(this._fz); this.stopHoldPulses(); }
   buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
   stopHoldPulses() { (this._hp || []).forEach(clearTimeout); this._hp = []; }
 
@@ -338,7 +338,7 @@ class Component extends DCLogic {
     const fizzle = () => {
       clearTimeout(this._hint);
       const p = this.state.path || [];
-      if (p.length > 1) { this.buzz(HAPTIC.fizzle); this.setState({ live: null, hint: false, frozen: p }); fx('fizzle', 700); setTimeout(() => this.setState({ frozen: null }), 700); }
+      if (p.length > 1) { this.buzz(HAPTIC.fizzle); this.setState({ live: null, hint: false, frozen: p }); fx('fizzle', 700); clearTimeout(this._fz); this._fz = setTimeout(() => this.setState({ frozen: null }), 700); }
       this.setState({ path: [], live: null, hint: false });
     };
     const seal = (id) => {
@@ -348,7 +348,8 @@ class Component extends DCLogic {
       const full = seq(id);
       this.setState({ active: id, sel: id, path: [], live: null, hint: false, frozen: full, swap: (this.state.swap || 0) + 1 });
       fx('sealed', 1800);
-      setTimeout(() => this.setState({ frozen: null }), 1800);
+      clearTimeout(this._fz);
+      this._fz = setTimeout(() => this.setState({ frozen: null }), 1800);
     };
 
     const pDown = (e) => {
@@ -361,7 +362,9 @@ class Component extends DCLogic {
         try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
         this.buzz(HAPTIC.touch);
         select(id);
-        this.setState({ path: [id], live: pt, hint: false });
+        // Un trazo nuevo reemplaza al que quedaba congelado (fallo o invocación recientes).
+        clearTimeout(this._fz);
+        this.setState({ path: [id], live: pt, hint: false, frozen: null });
         armHint();
         return;
       }

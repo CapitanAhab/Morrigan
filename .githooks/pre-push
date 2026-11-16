@@ -1,3 +1,8 @@
 #!/bin/sh
-# Stops a push if the app pages or sw.js were not rebuilt after changing canvas/, app/ or assets/.
+# Stops a push if the app pages or sw.js were not rebuilt after changing canvas/, app/ or assets/,
+# or if they were rebuilt but the result was not committed.
 node build.mjs --check || { echo "pre-push: run 'npm run build' and commit the result."; exit 1; }
+if [ -n "$(git status --porcelain -- index.html story.html character.html familiars.html sw.js)" ]; then
+  echo "pre-push: the built pages or sw.js have changes that are not committed. Commit them and push again."
+  exit 1
+fi
