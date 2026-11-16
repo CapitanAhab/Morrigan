@@ -279,6 +279,17 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 </div>
 </template>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+// Vibración de cada momento (ms; los arrays alternan vibrar / pausa).
+const HAPTIC = {
+  touch: 12,                       // tocar una punta
+  vertex: 10,                      // cada punta correcta del trazo
+  fizzle: [20, 40, 20],            // fallo
+  summon: [15, 60, 25, 60, 60],    // cerrar la estrella
+  holdPulse: 12,                   // pulsos mientras se mantiene el centro para despedir
+  holdAt: [1000, 1800, 2400, 2800],// cuándo suenan esos pulsos (ms desde que se apoya)
+  dismiss: 40                      // al soltarse el familiar
+};
+
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -287,7 +298,9 @@ class Component extends DCLogic {
     if (['owl', 'raven', 'cat', 'octopus', 'spider'].indexOf(active) < 0) active = '';
     this.state = { sel: active || 'owl', active, path: [], live: null, hint: false, fx: '', chold: false, fold: false, rules: false, swap: 0 };
   }
-  componentWillUnmount() { clearTimeout(this._hint); clearTimeout(this._fx); clearTimeout(this._ch); clearTimeout(this._fd); }
+  componentWillUnmount() { clearTimeout(this._hint); clearTimeout(this._fx); clearTimeout(this._ch); clearTimeout(this._fd); this.stopHoldPulses(); }
+  buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  stopHoldPulses() { (this._hp || []).forEach(clearTimeout); this._hp = []; }
 
   renderVals() {
     const FAM = {
@@ -332,12 +345,13 @@ class Component extends DCLogic {
     const fizzle = () => {
       clearTimeout(this._hint);
       const p = this.state.path || [];
-      if (p.length > 1) { this.setState({ live: null, hint: false, frozen: p }); fx('fizzle', 700); setTimeout(() => this.setState({ frozen: null }), 700); }
+      if (p.length > 1) { this.buzz(HAPTIC.fizzle); this.setState({ live: null, hint: false, frozen: p }); fx('fizzle', 700); setTimeout(() => this.setState({ frozen: null }), 700); }
       this.setState({ path: [], live: null, hint: false });
     };
     const seal = (id) => {
       clearTimeout(this._hint);
       try { localStorage.setItem('morrigan:familiar', id); } catch (e) {}
+      this.buzz(HAPTIC.summon);
       const full = seq(id);
       this.setState({ active: id, sel: id, path: [], live: null, hint: false, frozen: full, swap: (this.state.swap || 0) + 1 });
       fx('sealed', 1800);
@@ -352,6 +366,7 @@ class Component extends DCLogic {
       const id = near(pt);
       if (id) {
         try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+        this.buzz(HAPTIC.touch);
         select(id);
         this.setState({ path: [id], live: pt, hint: false });
         armHint();
@@ -361,7 +376,11 @@ class Component extends DCLogic {
         try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
         this.setState({ chold: true });
         clearTimeout(this._ch);
+        this.stopHoldPulses();
+        this._hp = HAPTIC.holdAt.map((ms) => setTimeout(() => this.buzz(HAPTIC.holdPulse), ms));
         this._ch = setTimeout(() => {
+          this.stopHoldPulses();
+          this.buzz(HAPTIC.dismiss);
           try { localStorage.setItem('morrigan:familiar', ''); } catch (err) {}
           this.setState({ chold: false, fold: true });
           fx('dismissed', 2600);
@@ -379,6 +398,7 @@ class Component extends DCLogic {
       if (id && id === need) {
         const np = p.concat(id);
         if (np.length === 6) { seal(p[0]); return; }
+        this.buzz(HAPTIC.vertex);
         this.setState({ path: np, live: pt, hint: false });
         armHint();
         return;
@@ -387,7 +407,7 @@ class Component extends DCLogic {
       this.setState({ live: pt });
     };
     const pUp = () => {
-      if (this.state.chold) { clearTimeout(this._ch); this.setState({ chold: false }); return; }
+      if (this.state.chold) { clearTimeout(this._ch); this.stopHoldPulses(); this.setState({ chold: false }); return; }
       const p = this.state.path || [];
       if (!p.length) return;
       if (p.length === 1) { clearTimeout(this._hint); this.setState({ path: [], live: null, hint: false }); return; }
