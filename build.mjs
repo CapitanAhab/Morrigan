@@ -10,7 +10,7 @@
    Check:  npm run check   (fails if the generated files are out of date; used by the pre-push hook)
 */
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, rmSync, mkdirSync, cpSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -109,16 +109,6 @@ for (const [board, page] of Object.entries(PAGES)) outputs[`${page}.html`] = bui
 const { sw, version, count } = buildSw(outputs);
 outputs['sw.js'] = sw;
 
-// www/: the copy of the app that goes inside the APK (npx cap sync). Not in the repo.
-function buildWww(pages) {
-  const WWW = join(ROOT, 'www');
-  rmSync(WWW, { recursive: true, force: true });
-  mkdirSync(WWW);
-  for (const dir of ['app', 'assets', 'icons']) cpSync(join(ROOT, dir), join(WWW, dir), { recursive: true });
-  cpSync(join(ROOT, 'manifest.webmanifest'), join(WWW, 'manifest.webmanifest'));
-  for (const [f, text] of Object.entries(pages)) writeFileSync(join(WWW, f), text, 'utf8');
-}
-
 if (check) {
   const stale = Object.keys(outputs).filter((f) => !existsSync(join(ROOT, f)) || readText(f) !== outputs[f]);
   if (stale.length) fail(`Out of date: ${stale.join(', ')}. Run: npm run build`);
@@ -127,7 +117,4 @@ if (check) {
   for (const [f, text] of Object.entries(outputs)) writeFileSync(join(ROOT, f), text, 'utf8');
   for (const [board, page] of Object.entries(PAGES)) console.log(`${board}.dc.html -> ${page}.html`);
   console.log('cache version', version, '-', count, 'files');
-  const pages = Object.fromEntries(Object.values(PAGES).map((p) => [`${p}.html`, outputs[`${p}.html`]]));
-  buildWww(pages);
-  console.log('www/ for the APK');
 }
